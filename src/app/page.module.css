@@ -1,0 +1,66 @@
+.featuresSection {
+  background-color: var(--bg-main);
+  padding: 80px 0;
+  position: relative;
+}
+
+/* Decorative swirl lines - matching Figma background */
+.featuresSection::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  right: -100px;
+  width: 600px;
+  height: 600px;
+  border-radius: 50%;
+  border: 80px solid rgba(211, 84, 0, 0.08);
+  pointer-events: none;
+}
+
+.featuresSectionTitle {
+  font-size: clamp(2rem, 5vw, 3.2rem);
+  font-weight: 900;
+  color: #3d1f0d;
+  text-align: center;
+  line-height: 1.2;
+  margin-bottom: 56px;
+}
+
+.featuresGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 20px;
+}
+
+/* CTA orange section */
+.ctaSection {
+  background-color: var(--primary);
+  padding: 80px 24px;
+  border-radius: 32px 32px 0 0;
+  text-align: center;
+  margin-top: 40px;
+}
+
+.ctaTitle {
+  font-size: clamp(2.2rem, 6vw, 4rem);
+  font-weight: 900;
+  color: white;
+  line-height: 1.15;
+  margin-bottom: 40px;
+}
+
+.ctaDarkBtn {
+  background-color: #3d1200;
+  color: white;
+  padding: 18px 48px;
+  border-radius: 9999px;
+  font-weight: 700;
+  font-size: 1.2rem;
+  display: inline-block;
+  transition: all 0.2s ease;
+}
+
+.ctaDarkBtn:hover {
+  background-color: #2a0d00;
+  transform: translateY(-2px);
+}

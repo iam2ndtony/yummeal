@@ -1,0 +1,275 @@
+.page {
+  position: relative;
+  min-height: 80vh;
+  overflow: hidden;
+  padding-bottom: 60px;
+}
+
+.swirlBg {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.swirlBg svg {
+  width: 100%;
+  height: 100%;
+}
+
+.inner {
+  position: relative;
+  z-index: 1;
+  padding-top: 28px;
+}
+
+.backLink {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  color: var(--text-muted);
+  font-size: 0.9rem;
+  font-weight: 600;
+  text-decoration: none;
+  margin-bottom: 24px;
+  transition: color 0.2s;
+}
+
+.backLink:hover {
+  color: var(--primary);
+}
+
+.recipeCard {
+  background: white;
+  border-radius: 24px;
+  overflow: hidden;
+  box-shadow: 0 8px 40px rgba(0,0,0,0.08);
+  max-width: 800px;
+  margin: 0 auto;
+  padding-bottom: 36px;
+}
+
+/* Hero photo */
+.heroPhoto {
+  width: 100%;
+  height: 300px;
+  overflow: hidden;
+}
+
+.heroPhoto img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+/* Title row */
+.titleRow {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 24px 36px 8px;
+  flex-wrap: wrap;
+}
+
+.title {
+  font-size: 2rem;
+  font-weight: 900;
+  color: #3d1200;
+  margin: 0;
+  line-height: 1.2;
+}
+
+.badge {
+  padding: 4px 14px;
+  border-radius: 9999px;
+  font-size: 0.8rem;
+  font-weight: 700;
+  flex-shrink: 0;
+}
+
+.easy { background: #e8fcea; color: #1a7a2b; }
+.medium { background: #fff3e8; color: #c05e00; }
+.hard { background: #fff0f0; color: #c0392b; }
+
+.description {
+  padding: 0 36px;
+  font-size: 0.95rem;
+  color: var(--text-muted);
+  line-height: 1.6;
+  margin-bottom: 16px;
+}
+
+.metaRow {
+  padding: 0 36px 20px;
+  display: flex;
+  gap: 24px;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.metaItem {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.9rem;
+  color: var(--text-muted);
+  font-weight: 500;
+}
+
+/* Two columns */
+.body {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 32px;
+  padding: 28px 36px;
+}
+
+@media (max-width: 640px) {
+  .body {
+    grid-template-columns: 1fr;
+  }
+}
+
+.section {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.sectionTitle {
+  font-size: 1.1rem;
+  font-weight: 800;
+  color: var(--text-dark);
+  margin: 0 0 8px;
+}
+
+/* Ingredient list with dot bullets */
+.ingredientList {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.ingredientList li {
+  font-size: 0.9rem;
+  color: var(--text-dark);
+  padding-left: 16px;
+  position: relative;
+  line-height: 1.5;
+}
+
+.ingredientList li::before {
+  content: '•';
+  position: absolute;
+  left: 0;
+  color: var(--primary);
+  font-weight: 700;
+}
+
+/* Numbered steps */
+.stepList {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.stepList li {
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+  font-size: 0.9rem;
+  color: var(--text-dark);
+  line-height: 1.5;
+}
+
+.stepNum {
+  flex-shrink: 0;
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  background-color: var(--primary);
+  color: white;
+  font-size: 0.75rem;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-top: 1px;
+}
+
+/* Detailed instructions */
+.detailedSection {
+  padding: 0 36px 24px;
+  border-top: 1px solid #f0f0f0;
+  margin-top: 8px;
+  padding-top: 24px;
+}
+
+.detailedText {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.detailedText p {
+  font-size: 0.9rem;
+  color: #444;
+  line-height: 1.7;
+  margin: 0;
+}
+
+/* Action buttons */
+.actions {
+  display: flex;
+  gap: 12px;
+  padding: 0 36px;
+  flex-wrap: wrap;
+}
+
+.btnPrimary {
+  background-color: #3d1200;
+  color: white;
+  padding: 12px 28px;
+  border-radius: 9999px;
+  font-weight: 700;
+  font-size: 0.95rem;
+  text-decoration: none;
+  transition: all 0.2s;
+  display: inline-flex;
+  align-items: center;
+}
+
+.btnPrimary:hover {
+  background-color: #2a0d00;
+  transform: translateY(-1px);
+}
+
+.btnOutline {
+  background: white;
+  color: var(--text-dark);
+  padding: 12px 28px;
+  border-radius: 9999px;
+  border: 2px solid rgba(0,0,0,0.15);
+  font-weight: 700;
+  font-size: 0.95rem;
+  text-decoration: none;
+  transition: all 0.2s;
+  display: inline-flex;
+  align-items: center;
+}
+
+.btnOutline:hover {
+  border-color: var(--primary);
+  color: var(--primary);
+}
+
+.muted {
+  font-size: 0.9rem;
+  color: var(--text-muted);
+}

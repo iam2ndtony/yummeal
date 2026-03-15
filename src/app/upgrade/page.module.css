@@ -1,0 +1,41 @@
+.upgradeContainer {
+  padding-top: 80px;
+  padding-bottom: 80px;
+  min-height: calc(100vh - 80px);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.header {
+  text-align: center;
+  margin-bottom: 40px;
+}
+
+.title {
+  font-size: 2.5rem;
+  color: var(--text-main);
+  margin-bottom: 12px;
+}
+
+.subtitle {
+  color: var(--text-muted);
+  font-size: 1.1rem;
+}
+
+.plansGrid {
+  display: flex;
+  justify-content: center;
+  gap: 24px;
+  width: 100%;
+  max-width: 900px;
+  padding: 0 20px;
+  flex-wrap: wrap;
+}
+
+@media (max-width: 768px) {
+  .plansGrid {
+    flex-direction: column;
+    align-items: stretch;
+  }
+}
