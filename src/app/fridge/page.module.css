@@ -198,3 +198,99 @@
   text-align: center;
   padding-top: 16px;
 }
+
+/* Add Modal Specifics */
+.addModalBody {
+  display: flex;
+  flex-direction: row;
+  height: 60vh;
+  min-height: 400px;
+}
+
+.quickSelectSection {
+  flex: 1.5;
+  border-right: 1px solid rgba(0,0,0,0.05);
+  background: #f8f9fa;
+  padding: 24px;
+  overflow-y: auto;
+}
+
+.formSection {
+  flex: 1;
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+}
+
+.sectionTitle {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--text-dark);
+  margin-bottom: 4px;
+  margin-top: 0;
+}
+
+.sectionDesc {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  margin-bottom: 16px;
+}
+
+.quickGrid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 12px;
+}
+
+.quickItem {
+  background: white;
+  border: 1px solid rgba(0,0,0,0.08);
+  border-radius: 12px;
+  padding: 12px 8px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  transition: all 0.2s;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+}
+
+.quickItem:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+  border-color: rgba(211, 84, 0, 0.3);
+}
+
+.quickItemActive {
+  background: rgba(211, 84, 0, 0.1);
+  border-color: var(--primary);
+  box-shadow: 0 4px 12px rgba(211, 84, 0, 0.1);
+}
+
+.quickIcon {
+  font-size: 2rem;
+  line-height: 1;
+}
+
+.quickName {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--text-dark);
+  text-align: center;
+}
+
+@media (max-width: 768px) {
+  .addModalBody {
+    flex-direction: column-reverse;
+    height: 80vh;
+  }
+  .quickSelectSection {
+    border-right: none;
+    border-top: 1px solid rgba(0,0,0,0.05);
+    flex: 1;
+  }
+  .formSection {
+    flex: none;
+  }
+}

@@ -30,6 +30,17 @@
   --section-padding: 80px 20px;
 }
 
+[data-theme='dark'] {
+  --bg-main: #121212;
+  --bg-card: #1E1E1E;
+  
+  --text-dark: #EEEEEE;
+  --text-muted: #A0A0A0;
+  
+  /* Retain brand colors to keep the Yummeal aesthetic but contrast against dark */
+  --border-color: rgba(255, 255, 255, 0.1);
+}
+
 * {
   box-sizing: border-box;
   padding: 0;

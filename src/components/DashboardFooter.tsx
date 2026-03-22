@@ -18,8 +18,8 @@ export default function DashboardFooter() {
           <h2 className={styles.tagline}>Nay ăn gì nhỉ&nbsp;?</h2>
           <nav className={styles.links}>
             <Link href="/">Trang chủ</Link>
-            <Link href="#">Cộng đồng</Link>
-            <Link href="#">Về Yummeal</Link>
+            <Link href="https://www.facebook.com/share/1BxX2AFhKh/?mibextid=wwXIfr" target="_blank">Facebook</Link>
+            <Link href="https://www.instagram.com/yummeal.vietnam?igsh=OW5uYnNoajZvNTA3" target="_blank">Instagram</Link>
             <Link href="#">Dịch vụ</Link>
             <Link href="#">Liên hệ</Link>
           </nav>

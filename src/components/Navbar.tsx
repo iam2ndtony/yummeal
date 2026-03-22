@@ -4,6 +4,8 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { Home, Thermometer, BookOpen, CalendarDays, MessageCircle, User as UserIcon, LogOut } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
+import NotificationBell from './NotificationBell';
+import ThemeToggle from './ThemeToggle';
 import styles from './Navbar.module.css';
 
 const NAV_ITEMS = [
@@ -43,10 +45,12 @@ export default function Navbar() {
         </div>
 
         <div className={styles.navActions}>
+          <ThemeToggle />
           {!isLoading && (
             user ? (
               <div className={styles.userProfileWrapper}>
-                <div className={styles.userInfo}>
+                <NotificationBell />
+                <Link href="/settings" className={styles.userInfo} title="Cài đặt My Kitchen">
                   <div className={styles.avatar}>
                     <UserIcon size={16} />
                   </div>
@@ -54,7 +58,7 @@ export default function Navbar() {
                   {user.plan === 'PLUS' && (
                     <span className={styles.plusBadge}>PLUS</span>
                   )}
-                </div>
+                </Link>
                 {user.plan !== 'PLUS' && (
                   <Link href="/upgrade" className={styles.upgradeBtn}>
                     Nâng cấp

@@ -19,7 +19,7 @@
   content: '';
   position: absolute;
   inset: 0;
-  background: linear-gradient(to bottom, rgba(0,0,0,0.3) 0%, rgba(0,0,0,0.5) 60%, rgba(0,0,0,0.7) 100%);
+  background: linear-gradient(to bottom, rgba(0, 0, 0, 0.3) 0%, rgba(0, 0, 0, 0.5) 60%, rgba(0, 0, 0, 0.7) 100%);
 }
 
 .heroContent {
@@ -31,8 +31,9 @@
   justify-content: center;
   flex: 1;
   text-align: center;
-  padding: 80px 24px 60px;
-  min-height: 60vh;
+  padding: 60px 24px;
+  width: 100%;
+  margin: 0; /* Remove margin auto to rely on parent flex centering */
 }
 
 .heroTitle {
@@ -42,7 +43,7 @@
   letter-spacing: -0.02em;
   line-height: 1;
   margin-bottom: 16px;
-  text-shadow: 0 4px 24px rgba(0,0,0,0.3);
+  text-shadow: 0 4px 24px rgba(0, 0, 0, 0.3);
 }
 
 .heroSubtitle {
@@ -51,6 +52,8 @@
   font-weight: 500;
   margin-bottom: 40px;
   letter-spacing: 0.02em;
+  max-width: 800px;
+  width: 100%;
 }
 
 .ctaGroup {
@@ -58,6 +61,8 @@
   gap: 16px;
   flex-wrap: wrap;
   justify-content: center;
+  width: 100%;
+  margin: 0 auto;
 }
 
 .ctaBtn {
@@ -70,6 +75,8 @@
   transition: all 0.2s ease;
   display: inline-flex;
   align-items: center;
+  justify-content: center;
+  min-width: 220px; /* Equalize button weights */
 }
 
 .ctaBtn:hover {
@@ -78,52 +85,47 @@
 }
 
 .ctaBtnOutline {
-  background-color: rgba(255,255,255,0.15);
+  background-color: rgba(255, 255, 255, 0.15);
   color: white;
   padding: 14px 28px;
   border-radius: 9999px;
   font-weight: 700;
   font-size: 1rem;
-  border: 2px solid rgba(255,255,255,0.6);
+  border: 2px solid rgba(255, 255, 255, 0.6);
   backdrop-filter: blur(4px);
   transition: all 0.2s ease;
   display: inline-flex;
   align-items: center;
+  justify-content: center;
+  min-width: 220px; /* Equalize button weights */
 }
 
 .ctaBtnOutline:hover {
-  background-color: rgba(255,255,255,0.25);
+  background-color: rgba(255, 255, 255, 0.25);
   transform: translateY(-2px);
 }
 
-/* Orange wave divider + tagline */
-.waveDivider {
-  position: relative;
-  z-index: 2;
-  margin-top: -2px;
-}
-
-.waveDivider svg {
-  display: block;
-  width: 100%;
-  height: 80px;
-}
-
-.waveTextBar {
+.taglineBar {
   background-color: var(--primary);
+  padding: 32px 24px;
+  position: relative;
+  z-index: 10;
+}
+
+.taglineContent {
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 24px;
-  padding: 28px 24px;
+  gap: 32px;
+  max-width: 1200px;
+  margin: 0 auto;
   font-size: clamp(1.8rem, 5vw, 3.5rem);
-  font-weight: 900;
+  font-weight: 800;
   color: white;
   letter-spacing: -0.01em;
   flex-wrap: wrap;
 }
 
 .dot {
-  opacity: 0.7;
-  font-size: 1.5rem;
+  opacity: 0.6;
 }

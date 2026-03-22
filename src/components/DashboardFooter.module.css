@@ -23,12 +23,13 @@
   position: relative;
   z-index: 2;
   display: flex;
-  justify-content: flex-end;
-  padding: 48px 48px 0;
+  justify-content: center;
+  text-align: center;
+  padding: 64px 24px 0;
 }
 
 .navSection {
-  text-align: right;
+  text-align: center;
 }
 
 .tagline {
@@ -42,8 +43,10 @@
 
 .links {
   display: flex;
-  flex-direction: column;
-  gap: 8px;
+  flex-direction: row; /* Horizontal links look better centered */
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 24px;
 }
 
 .links a {
@@ -55,7 +58,6 @@
   text-underline-offset: 4px;
   opacity: 0.9;
   transition: opacity 0.2s;
-  align-self: flex-end;
 }
 
 .links a:hover {
@@ -81,13 +83,15 @@
   white-space: nowrap;
   transform: translateY(15%);
   user-select: none;
+  width: 100%;
+  text-align: center;
 }
 
 .copyright {
   position: relative;
   z-index: 3;
-  text-align: right;
-  padding: 12px 48px 20px;
+  text-align: center;
+  padding: 40px 24px 20px;
   color: rgba(255, 255, 255, 0.6);
   font-size: 0.8rem;
   font-weight: 500;

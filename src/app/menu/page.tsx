@@ -1,14 +1,17 @@
 import { getMenuPlans } from '@/actions/menu';
+import { getFridgeItems } from '@/actions/fridge';
 import GenerateMenuButton from './GenerateMenuButton';
 import { getSession } from '@/lib/auth';
 import Link from 'next/link';
 import MenuContent from './MenuContent';
+import HealthWealthDashboard from '@/components/HealthWealthDashboard';
 import DashboardFooter from '@/components/DashboardFooter';
 import { Sparkles } from 'lucide-react';
 import styles from './page.module.css';
 
 export default async function MenuPage() {
   const weeklyMenu = await getMenuPlans();
+  const fridgeItems = await getFridgeItems();
   const session = await getSession();
 
   return (
@@ -38,6 +41,8 @@ export default async function MenuPage() {
             </div>
           </div>
 
+          <HealthWealthDashboard weeklyMenu={weeklyMenu} fridgeItems={fridgeItems} />
+          
           <MenuContent weeklyMenu={weeklyMenu} />
 
           {weeklyMenu.length > 0 && (

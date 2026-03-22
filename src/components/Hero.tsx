@@ -18,11 +18,8 @@ export default function Hero() {
       </div>
 
       {/* Orange wave divider */}
-      <div className={styles.waveDivider}>
-        <svg viewBox="0 0 1440 120" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
-          <path d="M0,60 C360,120 1080,0 1440,60 L1440,200 L0,200 Z" fill="#D35400"/>
-        </svg>
-        <div className={styles.waveTextBar}>
+      <div className={styles.taglineBar}>
+        <div className={styles.taglineContent}>
           <span>Thông minh</span>
           <span className={styles.dot}>•</span>
           <span>Thân thiện</span>

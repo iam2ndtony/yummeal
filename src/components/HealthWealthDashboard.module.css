@@ -1,0 +1,212 @@
+.dashboardCard {
+  background: white;
+  border-radius: var(--border-radius-card);
+  padding: 24px;
+  box-shadow: 0 4px 24px rgba(0,0,0,0.06);
+  border: 1px solid rgba(0,0,0,0.04);
+  margin-bottom: 32px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.dashboardHeader {
+  border-bottom: 1px solid rgba(0,0,0,0.05);
+  padding-bottom: 12px;
+}
+
+.dashboardTitle {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--text-dark);
+}
+
+.dashboardContent {
+  display: flex;
+  flex-direction: row;
+  align-items: stretch;
+  gap: 32px;
+}
+
+.healthSection {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  flex: 1.5;
+  align-items: stretch;
+}
+
+.macroBlock {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 16px;
+  border-radius: 16px;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.03);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.macroBlock:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(0,0,0,0.06);
+}
+
+.macroInfo {
+  display: flex;
+  flex-direction: column;
+}
+
+.macroValue {
+  font-weight: 800;
+  font-size: 1.4rem;
+  color: var(--text-dark);
+  line-height: 1;
+  display: flex;
+  align-items: baseline;
+  gap: 4px;
+}
+
+.perDayText {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--text-muted);
+}
+
+.macroLabel {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  font-weight: 600;
+  margin-top: 4px;
+}
+
+.divider {
+  width: 1px;
+  background-color: rgba(0,0,0,0.1);
+  margin: 0 16px;
+}
+
+.wealthSection {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 20px;
+  background-color: rgba(46, 204, 113, 0.05);
+  border-radius: 16px;
+  padding: 16px;
+  border: 1px dashed rgba(46, 204, 113, 0.3);
+}
+
+.ringWrapper {
+  position: relative;
+  width: 100px;
+  height: 100px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.ringSvg {
+  transform: rotate(-90deg);
+  width: 100%;
+  height: 100%;
+}
+
+.ringBg {
+  fill: none;
+  stroke: rgba(0,0,0,0.05);
+  stroke-width: 8;
+}
+
+.ringProgress {
+  fill: none;
+  stroke-width: 8;
+  stroke-linecap: round;
+  transition: stroke-dashoffset 1s ease-out, stroke 0.3s ease;
+}
+
+.ringCenter {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+}
+
+.ringValue {
+  font-weight: 700;
+  font-size: 1.1rem;
+  color: var(--text-dark);
+  line-height: 1;
+}
+
+.ringLabel {
+  font-size: 0.65rem;
+  color: var(--text-muted);
+  font-weight: 600;
+  text-transform: uppercase;
+}
+
+.wealthIconWrapper {
+  background: white;
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 12px rgba(46, 204, 113, 0.15);
+}
+
+.wealthInfo {
+  display: flex;
+  flex-direction: column;
+}
+
+.wealthValue {
+  font-size: 2rem;
+  font-weight: 800;
+  color: #2ecc71;
+  line-height: 1.1;
+}
+
+.wealthSubtitle {
+  font-size: 0.9rem;
+  color: var(--text-muted);
+  font-weight: 600;
+}
+
+.footerCaption {
+  text-align: center;
+  font-size: 0.9rem;
+  color: var(--text-muted);
+  background-color: rgba(0,0,0,0.02);
+  padding: 12px;
+  border-radius: 8px;
+  font-style: italic;
+}
+
+@media (max-width: 768px) {
+  .dashboardContent {
+    flex-direction: column;
+    gap: 16px;
+  }
+  
+  .healthSection {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+
+  .divider {
+    width: 100%;
+    height: 1px;
+    margin: 8px 0;
+  }
+}

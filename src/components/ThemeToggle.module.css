@@ -1,0 +1,17 @@
+.toggleBtn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--text-dark);
+  padding: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  transition: all 0.2s ease;
+}
+
+.toggleBtn:hover {
+  background-color: rgba(128, 128, 128, 0.1);
+  transform: scale(1.05);
+}

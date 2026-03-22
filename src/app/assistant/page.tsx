@@ -1,8 +1,8 @@
 'use client';
 
 import { useState, useRef, useEffect } from 'react';
-import { Bot, User as UserIcon, Send } from 'lucide-react';
-import { sendChatMessage } from '@/actions/chat';
+import { Bot, User as UserIcon, Send, Menu, X, Plus, Clock, MessageSquare } from 'lucide-react';
+import { sendChatMessage, getChatSessions, getChatSession, startNewChat } from '@/actions/chat';
 import styles from './page.module.css';
 import DashboardFooter from '@/components/DashboardFooter';
 import ReactMarkdown from 'react-markdown';
@@ -10,33 +10,78 @@ import Link from 'next/link';
 import { useAuth } from '@/context/AuthContext';
 
 interface Message {
-  role: 'user' | 'assistant';
+  role: 'user' | 'assistant' | 'system';
   content: string;
+}
+
+interface ChatSession {
+  id: string;
+  title: string;
+  updatedAt: Date;
 }
 
 const INITIAL_MESSAGE: Message = {
   role: 'assistant',
-  content: 'Xin chào! Tôi là đầu bếp AI của Yummeal 🍳 Tôi có thể gợi ý công thức dựa trên nguyên liệu trong tủ lạnh của bạn, giải đáp thắc mắc về nấu ăn, và nhiều hơn nữa. Tôi có thể giúp gì cho bạn hôm nay?'
+  content: 'Xin chào! Tôi là đầu bếp AI của Yummeal 🍳\n\nBạn có thể hỏi tôi bất cứ điều gì về nấu ăn, công thức, hoặc cách tận dụng nguyên liệu trong tủ lạnh hôm nay.'
 };
 
 const SUGGESTIONS = [
-  'Gợi ý món ăn từ tủ lạnh của tôi',
+  'Gợi ý món ăn từ tủ lạnh',
   'Cách làm phở bò tại nhà?',
-  'Món ăn nhanh dưới 30 phút',
+  'Món ăn nhanh dưới 30 phút'
 ];
 
 export default function AssistantPage() {
   const [messages, setMessages] = useState<Message[]>([INITIAL_MESSAGE]);
+  const [sessions, setSessions] = useState<ChatSession[]>([]);
+  const [activeSessionId, setActiveSessionId] = useState<string | null>(null);
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-  const chatBoxRef = useRef<HTMLDivElement>(null);
+  const messagesEndRef = useRef<HTMLDivElement>(null);
   const { user } = useAuth();
 
+  // Scroll smoothly to bottom on new message
   useEffect(() => {
-    if (chatBoxRef.current) {
-      chatBoxRef.current.scrollTop = chatBoxRef.current.scrollHeight;
+    if (messages.length > 1) {
+      messagesEndRef.current?.scrollIntoView({ behavior: 'smooth', block: 'end' });
     }
   }, [messages]);
+
+  // Fetch history
+  const loadSessions = async () => {
+    const data = await getChatSessions();
+    setSessions(data as any);
+  };
+
+  useEffect(() => {
+    loadSessions();
+  }, []);
+
+  const handleSelectSession = async (sessionId: string) => {
+    setIsSidebarOpen(false);
+    if (sessionId === activeSessionId) return;
+    
+    setIsLoading(true);
+    setActiveSessionId(sessionId);
+    
+    const sessionDetail = await getChatSession(sessionId);
+    if (sessionDetail && sessionDetail.messages.length > 0) {
+      setMessages(sessionDetail.messages.map((m: any) => ({
+        role: m.role,
+        content: m.content
+      })));
+    } else {
+      setMessages([INITIAL_MESSAGE]);
+    }
+    setIsLoading(false);
+  };
+
+  const handleNewChat = () => {
+    setActiveSessionId(null);
+    setMessages([INITIAL_MESSAGE]);
+    setIsSidebarOpen(false);
+  };
 
   const handleSend = async (text: string) => {
     if (!text.trim() || isLoading) return;
@@ -47,15 +92,34 @@ export default function AssistantPage() {
     setInput('');
     setIsLoading(true);
 
+    // Filter out initial message array if it's new chat
+    const historyToApi = activeSessionId ? newMessages : [userMessage];
     setMessages(prev => [...prev, { role: 'assistant', content: '...' }]);
 
     try {
-      const apiMessages = newMessages.map(m => ({ role: m.role as 'user' | 'assistant', content: m.content }));
-      const result = await sendChatMessage(apiMessages);
-      setMessages(prev => [
-        ...prev.slice(0, -1),
-        { role: 'assistant', content: result.success ? result.message! : (result.error || 'Đã có lỗi.') }
-      ]);
+      if (!activeSessionId) {
+        // Start new session
+        const result = (await startNewChat(text)) as any;
+        if (result.success && result.sessionId) {
+          setActiveSessionId(result.sessionId);
+          setMessages([userMessage, { role: 'assistant', content: result.message! }]);
+          loadSessions(); // Refresh sidebar title
+        } else {
+          setMessages(prev => [
+            ...prev.slice(0, -1),
+            { role: 'assistant', content: result.error || 'Đã có lỗi tạo phiên.' }
+          ]);
+        }
+      } else {
+        // Continue session
+        const apiMessages = newMessages.map(m => ({ role: m.role as 'user' | 'assistant', content: m.content }));
+        const result = await sendChatMessage(apiMessages, activeSessionId);
+        setMessages(prev => [
+          ...prev.slice(0, -1),
+          { role: 'assistant', content: result.success ? result.message! : (result.error || 'Đã có lỗi.') }
+        ]);
+        loadSessions(); // To update the sorting of sessions by date
+      }
     } catch {
       setMessages(prev => [
         ...prev.slice(0, -1),
@@ -66,9 +130,15 @@ export default function AssistantPage() {
     }
   };
 
+  const formatTime = (date: Date) => {
+    const d = new Date(date);
+    return `${d.getHours().toString().padStart(2, '0')}:${d.getMinutes().toString().padStart(2, '0')} - ${d.getDate()}/${d.getMonth()+1}`;
+  };
+
   return (
     <>
       <main className={styles.assistantContainer}>
+        {/* Sidebar overlay background */}
         <div className={styles.swirlBg} aria-hidden="true">
           <svg viewBox="0 0 1440 900" fill="none" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid slice">
             <ellipse cx="1300" cy="200" rx="500" ry="400" stroke="rgba(211,84,0,0.12)" strokeWidth="70" fill="none"/>
@@ -76,59 +146,109 @@ export default function AssistantPage() {
           </svg>
         </div>
 
-        <div className={`container ${styles.inner}`}>
-          <div className={styles.header}>
-            <h1 className={styles.title}>Trợ lý AI</h1>
-            <p className={styles.subtitle}>Đầu bếp AI thông minh luôn sẵn sàng hỗ trợ bạn</p>
+        {/* Sidebar Drawer */}
+        <aside className={`${styles.sidebar} ${isSidebarOpen ? styles.sidebarOpen : ''}`}>
+          <div className={styles.sidebarHeader}>
+            <span className={styles.sidebarTitle}>Lịch sử Chat</span>
+            {user?.kitchenGear && user.kitchenGear.length > 0 && (
+              <span className={styles.gearBadge} title="Đã đồng bộ thiết bị của bạn">
+                <Bot size={14} /> Synced
+              </span>
+            )}
+            <button onClick={() => setIsSidebarOpen(false)} className={styles.closeSidebarBtn} style={{ display: 'none' /* Only show on mobile if needed */ }}>
+              <X size={24} />
+            </button>
           </div>
+          
+          <button className={styles.newChatBtn} onClick={handleNewChat}>
+            <Plus size={20} /> Mới
+          </button>
 
-          <div className={styles.chatWrapper}>
-            <div className={styles.chatBox} ref={chatBoxRef}>
-              {messages.map((msg, i) => (
-                <div
-                  key={i}
-                  className={`${styles.messageBubbleWrapper} ${msg.role === 'user' ? styles.userWrapper : styles.assistantWrapper}`}
-                >
-                  <div className={msg.role === 'user' ? styles.avatarUser : styles.avatarAssistant}>
-                    {msg.role === 'user' ? <UserIcon size={16} /> : <Bot size={16} />}
-                  </div>
-                  <div className={`${styles.messageBubble} ${msg.role === 'user' ? styles.userBubble : styles.assistantBubble}`}>
-                    {msg.role === 'assistant'
-                      ? <div className={styles.markdownBody}><ReactMarkdown>{msg.content}</ReactMarkdown></div>
-                      : msg.content}
-                  </div>
+          <div className={styles.sessionList}>
+            {sessions.map(s => (
+              <div 
+                key={s.id} 
+                className={`${styles.sessionItem} ${activeSessionId === s.id ? styles.sessionItemActive : ''}`}
+                onClick={() => handleSelectSession(s.id)}
+              >
+                <div className={styles.sessionItemTitle}>
+                  <MessageSquare size={14} style={{ display: 'inline', marginRight: '6px', opacity: 0.6 }}/> 
+                  {s.title}
                 </div>
-              ))}
+                <div className={styles.sessionItemDate}>
+                  <Clock size={12} style={{ display: 'inline', marginRight: '4px', verticalAlign: '-1px' }}/>
+                  {formatTime(s.updatedAt)}
+                </div>
+              </div>
+            ))}
+            {sessions.length === 0 && (
+              <div style={{ textAlign: 'center', color: 'var(--text-muted)', fontSize: '0.9rem', marginTop: '20px' }}>
+                Chưa có lịch sử.
+              </div>
+            )}
+          </div>
+        </aside>
+
+        {/* Main Interface */}
+        <div className={styles.mainContent}>
+          {/* Fluid Chat Flow */}
+          <div className={styles.chatWrapper}>
+            <div className={styles.chatBox}>
+              {messages.map((msg, i) => {
+                if (msg.role === 'system') return null; // Hide system messages
+
+                return (
+                  <div
+                    key={i}
+                    className={`${styles.messageBubbleWrapper} ${msg.role === 'user' ? styles.userWrapper : styles.assistantWrapper}`}
+                  >
+                    <div className={msg.role === 'user' ? styles.avatarUser : styles.avatarAssistant}>
+                      {msg.role === 'user' ? <UserIcon size={16} /> : <Bot size={16} />}
+                    </div>
+                    <div className={`${styles.messageBubble} ${msg.role === 'user' ? styles.userBubble : styles.assistantBubble}`}>
+                      {msg.role === 'assistant'
+                        ? <div className={styles.markdownBody}><ReactMarkdown>{msg.content}</ReactMarkdown></div>
+                        : msg.content}
+                    </div>
+                  </div>
+                );
+              })}
+              <div ref={messagesEndRef} style={{ height: 1 }} />
             </div>
 
-            <div className={styles.inputArea}>
-              <div className={styles.inputWrapper}>
-                <input
-                  className={styles.chatInput}
-                  value={input}
-                  onChange={e => setInput(e.target.value)}
-                  onKeyDown={e => e.key === 'Enter' && handleSend(input)}
-                  placeholder="Nhập câu hỏi về nấu ăn..."
-                  disabled={isLoading}
-                />
-                <button className={styles.sendBtn} onClick={() => handleSend(input)} disabled={isLoading}>
-                  <Send size={18} /> Gửi
-                </button>
-              </div>
-              
-              {user?.plan !== 'PLUS' && (
-                <p className={styles.limitText}>
-                  Bạn đang dùng gói Miễn phí (Giới hạn 3 lượt hỏi/ngày). 
-                  <Link href="/upgrade" style={{ color: 'var(--primary)', marginLeft: '5px', fontWeight: 'bold' }}>Nâng cấp ngay</Link>
-                </p>
-              )}
-
-              <div className={styles.suggestions}>
-                {SUGGESTIONS.map((s, i) => (
-                  <button key={i} className={styles.suggestionPill} onClick={() => handleSend(s)}>
-                    {s}
+            {/* Inline Input Area */}
+            <div className={styles.inputAreaContainer}>
+              <div className={styles.inputArea}>
+                <div className={styles.inputWrapper}>
+                  <input
+                    className={styles.chatInput}
+                    value={input}
+                    onChange={e => setInput(e.target.value)}
+                    onKeyDown={e => e.key === 'Enter' && handleSend(input)}
+                    placeholder="Hôm nay bạn muốn nấu gì..."
+                    disabled={isLoading}
+                  />
+                  <button className={styles.sendBtn} onClick={() => handleSend(input)} disabled={isLoading}>
+                    <Send size={18} />
                   </button>
-                ))}
+                </div>
+                
+                {messages.length <= 1 && (
+                  <div className={styles.suggestions}>
+                    {SUGGESTIONS.map((s, i) => (
+                      <button key={i} className={styles.suggestionPill} onClick={() => handleSend(s)} disabled={isLoading}>
+                        {s}
+                      </button>
+                    ))}
+                  </div>
+                )}
+
+                {user?.plan !== 'PLUS' && (
+                  <p className={styles.limitText}>
+                    Gói Miễn phí (Giới hạn 3 lượt/ngày). 
+                    <Link href="/upgrade" style={{ color: 'var(--primary)', marginLeft: '4px', fontWeight: 'bold' }}>Nâng cấp hạn mức</Link>
+                  </p>
+                )}
               </div>
             </div>
           </div>

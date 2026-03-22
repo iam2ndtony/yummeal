@@ -11,9 +11,55 @@ export async function getFridgeItems() {
   try {
     const items = await prisma.fridgeItem.findMany({
       where: { userId: session.id },
-      orderBy: { expiryDays: 'asc' }
+      orderBy: { createdAt: 'desc' }
     });
-    return items;
+
+    const now = new Date();
+    
+    const enrichedItems = items.map(item => {
+      // Calculate real-time decay
+      // Using absolute Time difference to get accurate days
+      const daysPassed = Math.floor((now.getTime() - item.createdAt.getTime()) / (1000 * 60 * 60 * 24));
+      const remainingDays = Math.max(0, item.expiryDays - daysPassed);
+      
+      let status = 'Tươi';
+      let statusType = 'fresh';
+      
+      if (remainingDays === 0) {
+        status = 'Hết hạn';
+        statusType = 'error';
+      } else if (remainingDays <= 3) {
+        status = 'Dùng ngay!';
+        statusType = 'urgent';
+      } else if (remainingDays <= 7) {
+        status = 'Sắp hết hạn';
+        statusType = 'warning';
+      }
+      
+      let freshness = 100;
+      if (remainingDays === 0) {
+        freshness = 0;
+      } else if (remainingDays <= 3) {
+        freshness = 20;
+      } else if (remainingDays <= 7) {
+        freshness = 50;
+      } else {
+        freshness = 100;
+      }
+
+      return {
+        ...item,
+        remainingDays, // Dynamic injected property
+        freshness,
+        status,
+        statusType
+      };
+    });
+    
+    // Sort by remaining days ascending
+    enrichedItems.sort((a, b) => a.remainingDays - b.remainingDays);
+    
+    return enrichedItems;
   } catch (error) {
     console.error('Error fetching fridge items:', error);
     return [];

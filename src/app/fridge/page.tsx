@@ -6,8 +6,8 @@ import AddFridgeModal from './AddFridgeModal';
 import { FridgeItem } from '@prisma/client';
 
 export default async function FridgePage() {
-  const fridgeItems: FridgeItem[] = await getFridgeItems();
-  const warningItems = fridgeItems.filter((item: FridgeItem) => item.statusType === 'warning' || item.statusType === 'urgent').length;
+  const fridgeItems: any[] = await getFridgeItems();
+  const warningItems = fridgeItems.filter((item: any) => item.statusType === 'warning' || item.statusType === 'urgent').length;
 
   return (
     <>
@@ -44,7 +44,7 @@ export default async function FridgePage() {
           </div>
         ) : (
           <div className={styles.grid}>
-            {fridgeItems.map((item: FridgeItem) => (
+            {fridgeItems.map((item: any) => (
               <div key={item.id} className={styles.card}>
                 <div className={styles.cardHeader}>
                   <div>
@@ -88,8 +88,8 @@ export default async function FridgePage() {
                       <span className={styles.detailValue}>{item.quantity}</span>
                     </div>
                     <div className={styles.detailItem}>
-                      <span className={styles.detailLabel}>Hết hạn sau:</span>
-                      <span className={styles.detailValue}>{item.expiryDays} ngày</span>
+                      <span className={styles.detailLabel}>Tình trạng:</span>
+                      <span className={styles.detailValue}>{item.remainingDays > 0 ? `Còn ${item.remainingDays} ngày` : 'Đã hết hạn'}</span>
                     </div>
                   </div>
                 </div>
@@ -98,11 +98,7 @@ export default async function FridgePage() {
           </div>
         )}
 
-        {fridgeItems.length > 0 && (
-          <div className={styles.loadMore}>
-            <button className="btn-primary" style={{ padding: '12px 32px' }}>Xem thêm</button>
-          </div>
-        )}
+
         </div>
       </main>
       

@@ -1,11 +1,11 @@
 .assistantContainer {
   position: relative;
-  min-height: calc(100vh - 500px);
-  overflow: hidden;
+  min-height: 100vh;
+  display: flex;
 }
 
 .swirlBg {
-  position: absolute;
+  position: fixed;
   inset: 0;
   pointer-events: none;
   z-index: 0;
@@ -16,57 +16,151 @@
   height: 100%;
 }
 
-.inner {
-  position: relative;
-  z-index: 1;
-  padding-top: 120px;
+/* Sidebar Styles */
+.sidebar {
+  width: 280px;
+  background-color: rgba(254, 236, 225, 0.02);
+  /* Tinted to match assistant bubbles */
+  backdrop-filter: blur(20px);
+  border-right: 1px solid rgba(255, 255, 255, 0.03);
+  box-shadow: 4px 0 24px rgba(0, 0, 0, 0.03);
+  z-index: 10;
   display: flex;
   flex-direction: column;
+  flex-shrink: 0;
+  /* Adjust top padding if navbar is fixed */
+  padding-top: 10px;
+  /* Radical reduction */
+}
+
+.sidebarHeader {
+  padding: 12px 16px;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+  display: flex;
+  justify-content: center;
+  /* Center the title */
+  align-items: center;
+  position: relative;
+  /* For absolute positioning of close button */
+}
+
+.sidebarTitle {
+  font-weight: 800;
+  color: var(--primary);
+  font-size: 0.9rem;
+  text-transform: uppercase;
+  /* In hoa */
+  letter-spacing: 0.5px;
+}
+
+.closeSidebarBtn {
+  position: absolute;
+  right: 12px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--text-muted);
+  display: flex;
   align-items: center;
 }
 
-.header {
-  text-align: center;
-  margin-bottom: 40px;
+.newChatBtn {
+  margin: 4px 16px 8px;
+  /* Extra tight margin */
+  padding: 8px 12px;
+  /* Tighter button */
+  background-color: var(--primary);
+  color: white;
+  border: none;
+  border-radius: var(--border-radius-pill);
+  font-weight: 600;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
 }
 
-.title {
-  font-size: 2.5rem;
-  color: var(--primary);
-  margin-bottom: 8px;
-}
-
-.subtitle {
-  color: var(--primary);
-  opacity: 0.8;
-  font-size: 1rem;
-  font-weight: 500;
-}
-
-.limitText {
-  font-size: 0.8rem;
-  color: var(--text-muted);
-  text-align: center;
-  margin-top: 10px;
-}
-
-.chatWrapper {
-  width: 100%;
-  max-width: 800px;
-  background-color: var(--bg-card);
-  border-radius: var(--border-radius-card);
-  box-shadow: var(--shadow-sm);
+.sessionList {
+  flex-grow: 1;
+  overflow-y: auto;
+  padding: 0 10px 20px 10px;
   display: flex;
   flex-direction: column;
+}
+
+.sessionItem {
+  padding: 8px 12px;
+  /* Tighter session items */
+  margin-bottom: 4px;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  border: 1px solid transparent;
+}
+
+.sessionItem:hover {
+  background-color: rgba(0, 0, 0, 0.02);
+  border-color: rgba(0, 0, 0, 0.05);
+  transform: translateY(-1px);
+}
+
+.sessionItemActive {
+  background-color: rgba(211, 84, 0, 0.08);
+  border: 1px solid rgba(211, 84, 0, 0.15);
+  box-shadow: 0 4px 12px rgba(211, 84, 0, 0.05);
+}
+
+.sessionItemTitle {
+  font-size: 0.95rem;
+  font-weight: 500;
+  color: var(--text-dark);
+  white-space: nowrap;
   overflow: hidden;
-  height: 500px; /* Fixed height for the chat interface */
-  border: 1px solid rgba(0,0,0,0.05);
+  text-overflow: ellipsis;
+  transition: color 0.2s;
+}
+
+.sessionItemActive .sessionItemTitle {
+  color: var(--primary);
+  font-weight: 700;
+}
+
+.sessionItemDate {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+/* Main Content Styles */
+.mainContent {
+  flex-grow: 1;
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  width: calc(100% - 280px);
+  padding-top: 60px;
+  /* Offset for navbar */
+}
+
+/* Chat Interface */
+.chatWrapper {
+  flex-grow: 1;
+  display: flex;
+  flex-direction: column;
+  max-width: 900px;
+  margin: 0 auto;
+  width: 100%;
+  padding-bottom: 40px;
 }
 
 .chatBox {
-  flex-grow: 1;
-  padding: 32px;
-  overflow-y: auto;
+  padding: 24px;
   display: flex;
   flex-direction: column;
   gap: 24px;
@@ -75,21 +169,26 @@
 .messageBubbleWrapper {
   display: flex;
   flex-direction: column;
-  max-width: 80%;
+  max-width: 100%;
+  /* Changed from 80% to allow wider lines */
   gap: 8px;
 }
 
 .assistantWrapper {
   align-self: flex-start;
   align-items: flex-start;
+  width: 100%;
 }
 
 .userWrapper {
   align-self: flex-end;
   align-items: flex-end;
+  max-width: 80%;
+  /* Users keep a smaller width for distinctive shape */
 }
 
-.avatarAssistant, .avatarUser {
+.avatarAssistant,
+.avatarUser {
   width: 32px;
   height: 32px;
   background-color: white;
@@ -98,8 +197,9 @@
   align-items: center;
   justify-content: center;
   color: var(--primary);
-  border: 1px solid rgba(0,0,0,0.05);
-  box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+  border: 1px solid rgba(0, 0, 0, 0.05);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.02);
+  margin-bottom: 4px;
 }
 
 .avatarUser {
@@ -110,163 +210,209 @@
 .messageBubble {
   padding: 16px 20px;
   border-radius: 16px;
-  font-size: 0.95rem;
+  font-size: 1rem;
   line-height: 1.6;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.02);
+  width: auto;
 }
 
 .assistantBubble {
   background-color: #FEECE1;
-  color: var(--primary);
+  /* Soft orange */
+  color: var(--text-dark);
+  /* Slightly darker text for readability */
   border-top-left-radius: 4px;
+  width: 100%;
+  /* Take full width of parent within 900px max container */
 }
 
 .userBubble {
   background-color: white;
   color: var(--text-dark);
-  border: 1px solid rgba(0,0,0,0.05);
+  border: 1px solid rgba(0, 0, 0, 0.05);
   border-top-right-radius: 4px;
 }
 
-.emptySpace {
-  flex-shrink: 0;
-  height: 1px;
+/* Inline Input Area */
+.inputAreaContainer {
+  width: 100%;
+  padding: 24px 20px 40px;
+  /* Extra bottom padding for floating feel */
+  display: flex;
+  justify-content: center;
 }
 
 .inputArea {
-  padding: 24px;
-  background-color: var(--bg-card);
-  border-top: 1px solid rgba(0,0,0,0.05);
+  width: 100%;
+  max-width: 900px;
+  background-color: #ffffff;
+  border: 2px solid rgba(211, 84, 0, 0.15);
+  /* Primary-tinted border */
+  border-radius: 32px;
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.12);
+  /* Pronounced shadow to stand out */
+  padding: 20px 24px;
+  display: flex;
+  flex-direction: column;
+  transition: box-shadow 0.3s ease, border-color 0.3s ease;
+}
+
+.inputArea:focus-within {
+  box-shadow: 0 16px 48px rgba(211, 84, 0, 0.18);
+  border-color: rgba(211, 84, 0, 0.35);
 }
 
 .inputWrapper {
   display: flex;
-  gap: 12px;
-  margin-bottom: 16px;
+  gap: 16px;
+  align-items: center;
+  background-color: #f8f9fa;
+  /* Sleek inner field background */
+  border-radius: 20px;
+  padding: 8px 12px;
 }
 
 .chatInput {
   flex-grow: 1;
-  padding: 14px 20px;
-  border: 1px solid rgba(0,0,0,0.1);
-  border-radius: var(--border-radius-pill);
-  font-size: 0.95rem;
+  padding: 12px 8px;
+  border: none;
+  font-size: 1rem;
   font-family: inherit;
-  transition: border-color 0.2s, box-shadow 0.2s;
   background-color: transparent;
+  color: var(--text-dark);
 }
 
 .chatInput:focus {
   outline: none;
-  border-color: var(--primary);
-  box-shadow: 0 0 0 3px rgba(230, 126, 34, 0.1);
 }
 
 .sendBtn {
   background-color: var(--primary);
   color: white;
   border: none;
-  padding: 0 24px;
-  border-radius: var(--border-radius-pill);
-  font-weight: 600;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
   cursor: pointer;
   display: flex;
   align-items: center;
-  gap: 8px;
-  transition: opacity 0.2s;
+  justify-content: center;
+  transition: transform 0.2s, background-color 0.2s;
+  flex-shrink: 0;
 }
 
 .sendBtn:hover {
-  opacity: 0.9;
+  transform: scale(1.05);
+  background-color: #e67e22;
+  /* Slightly darker primary */
+}
+
+.sendBtn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: scale(1);
 }
 
 .suggestions {
   display: flex;
-  justify-content: center;
-  gap: 12px;
-  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 12px;
+  overflow-x: auto;
+  padding-bottom: 4px;
+  scrollbar-width: none;
+}
+
+.suggestions::-webkit-scrollbar {
+  display: none;
 }
 
 .suggestionPill {
-  background-color: transparent;
-  border: 1px solid rgba(0,0,0,0.1);
-  color: var(--text-muted);
-  padding: 8px 16px;
-  border-radius: var(--border-radius-pill);
+  background-color: rgba(0, 0, 0, 0.03);
+  border: 1px solid rgba(0, 0, 0, 0.05);
+  color: var(--text-dark);
+  padding: 8px 14px;
+  border-radius: 16px;
   font-size: 0.85rem;
-  font-weight: 600;
   cursor: pointer;
-  background-color: var(--bg-card);
+  white-space: nowrap;
   transition: all 0.2s;
 }
 
 .suggestionPill:hover {
-  border-color: var(--primary);
+  background-color: rgba(230, 126, 34, 0.1);
   color: var(--primary);
+  border-color: rgba(230, 126, 34, 0.3);
 }
 
-@media (max-width: 640px) {
+.limitText {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  text-align: center;
+  margin-top: 8px;
+}
+
+@media (max-width: 768px) {
+  .sidebar {
+    position: fixed;
+    top: 60px;
+    /* Navbar height */
+    bottom: 0;
+    left: 0;
+    z-index: 50;
+    transform: translateX(-100%);
+    transition: transform 0.3s ease;
+  }
+
+  .sidebarOpen {
+    transform: translateX(0);
+  }
+
+  .mainContent {
+    width: 100%;
+  }
+
+  .inputAreaContainer {
+    padding: 16px;
+  }
+
   .chatBox {
-    padding: 20px;
-  }
-  .messageBubble {
-    max-width: 90%;
-  }
-  .inputArea {
     padding: 16px;
   }
 }
 
-/* ─── ReactMarkdown output inside assistant bubbles ─── */
+/* ReactMarkdown Overrides */
 .markdownBody {
-  font-size: 0.95rem;
-  line-height: 1.7;
+  font-size: 1rem;
+  line-height: 1.8;
   color: inherit;
-}
-
-.markdownBody > *:first-child { margin-top: 0; }
-.markdownBody > *:last-child  { margin-bottom: 0; }
-
-.markdownBody p {
-  margin: 0 0 8px;
-}
-
-.markdownBody strong {
-  font-weight: 700;
-  color: inherit;
-}
-
-.markdownBody em {
-  font-style: italic;
-}
-
-.markdownBody ol,
-.markdownBody ul {
-  padding-left: 20px;
-  margin: 6px 0 10px;
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-}
-
-.markdownBody ol {
-  list-style: decimal;
-}
-
-.markdownBody ul {
-  list-style: disc;
-}
-
-.markdownBody li {
-  line-height: 1.6;
 }
 
 .markdownBody h1,
 .markdownBody h2,
 .markdownBody h3 {
-  font-weight: 700;
-  margin: 12px 0 4px;
-  font-size: 1rem;
-  color: inherit;
+  color: var(--primary);
+  margin-top: 20px;
+  margin-bottom: 10px;
+  font-weight: 800;
+  font-size: 1.25rem;
+  /* Standardized size to match the specific recipe headers */
 }
 
+.markdownBody ul,
+.markdownBody ol {
+  padding-left: 24px;
+  margin: 16px 0;
+}
+
+.markdownBody li {
+  margin-bottom: 10px;
+}
+
+.markdownBody p {
+  margin-bottom: 14px;
+}
+
+.markdownBody strong {
+  font-weight: 700;
+  color: var(--text-dark);
+}

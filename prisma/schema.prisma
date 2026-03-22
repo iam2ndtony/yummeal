@@ -14,13 +14,35 @@ model User {
   email              String       @unique
   passwordHash       String
   plan               String       @default("FREE")
+  planExpiresAt      DateTime?
   generationCount    Int          @default(0)
   lastGenerationDate DateTime?
+  kitchenGear        String[]     @default([])
   fridgeItems        FridgeItem[]
   recipes            Recipe[]
   menuPlans          MenuPlan[]
+  chatSessions       ChatSession[]
   createdAt          DateTime     @default(now())
   updatedAt          DateTime     @updatedAt
+}
+
+model ChatSession {
+  id        String        @id @default(cuid())
+  userId    String
+  user      User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  title     String        @default("Trò chuyện mới")
+  messages  ChatMessage[]
+  createdAt DateTime      @default(now())
+  updatedAt DateTime      @updatedAt
+}
+
+model ChatMessage {
+  id        String      @id @default(cuid())
+  sessionId String
+  session   ChatSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+  role      String
+  content   String
+  createdAt DateTime    @default(now())
 }
 
 model FridgeItem {

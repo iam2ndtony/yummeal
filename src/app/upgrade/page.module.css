@@ -39,3 +39,121 @@
     align-items: stretch;
   }
 }
+
+.modalOverlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  backdrop-filter: blur(4px);
+  padding: 20px;
+}
+
+.modalContent {
+  background: white;
+  border-radius: 24px;
+  padding: 48px;
+  max-width: 520px;
+  width: 100%;
+  position: relative;
+  text-align: center;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+  animation: slideUp 0.3s ease-out;
+  color: var(--text-main);
+}
+
+[data-theme='dark'] .modalContent {
+  background: var(--bg-card);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+@keyframes slideUp {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.closeBtn {
+  position: absolute;
+  top: 24px;
+  right: 24px;
+  background: none;
+  border: none;
+  color: var(--text-muted);
+  cursor: pointer;
+  transition: color 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.closeBtn:hover {
+  color: var(--text-dark);
+}
+
+.modalTitle {
+  font-size: 2rem;
+  font-weight: 800;
+  color: var(--text-main);
+  margin-bottom: 32px;
+}
+
+.qrContainer {
+  width: 280px;
+  height: 280px;
+  margin: 0 auto 32px;
+  background: white;
+  padding: 16px;
+  border-radius: 20px;
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.06);
+}
+
+.qrImage {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  border-radius: 12px;
+}
+
+.paymentInfo {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  text-align: left;
+}
+
+.paymentInfo p {
+  margin: 0;
+  font-size: 1.1rem;
+  color: var(--text-main);
+  text-align: left;
+}
+
+.transferCode {
+  background: rgba(211, 84, 0, 0.06);
+  color: #c94c02;
+  font-weight: 800;
+  font-size: 1.6rem;
+  padding: 20px;
+  border-radius: 12px;
+  text-align: center;
+  border: 2px dashed rgba(211, 84, 0, 0.5);
+  user-select: all;
+  margin: 8px 0;
+  letter-spacing: 0.5px;
+}
+
+.paymentNote {
+  font-size: 1rem !important;
+  color: #71717a !important;
+  font-style: italic;
+  margin-top: 12px !important;
+  text-align: center !important;
+  line-height: 1.5;
+}

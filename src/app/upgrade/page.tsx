@@ -6,29 +6,20 @@ import DashboardFooter from '@/components/DashboardFooter';
 import SubscriptionPlan from '@/components/SubscriptionPlan';
 import { upgradePlanAction } from '@/actions/subscription';
 import { useAuth } from '@/context/AuthContext';
+import { X } from 'lucide-react';
 import styles from './page.module.css';
 
 export default function UpgradePage() {
   const router = useRouter();
   const { user } = useAuth();
-  const [isUpgrading, setIsUpgrading] = useState(false);
+  const [showQR, setShowQR] = useState(false);
 
-  const handleUpgrade = async () => {
+  const handleUpgradeClick = () => {
     if (!user) {
       router.push('/login');
       return;
     }
-    
-    setIsUpgrading(true);
-    const res = await upgradePlanAction();
-    setIsUpgrading(false);
-    
-    if (res.success) {
-      alert('Nâng cấp thành công! Chào mừng tới Yummeal Plus.');
-      router.push('/');
-    } else {
-      alert(res.error || 'Nâng cấp thất bại');
-    }
+    setShowQR(true);
   };
 
   return (
@@ -66,10 +57,33 @@ export default function UpgradePage() {
               'Hỗ trợ ưu tiên 24/7'
             ]}
             isPopular={true}
-            buttonText={isUpgrading ? 'Đang xử lý...' : (user?.plan === 'PLUS' ? 'Gói hiện tại' : 'Thanh toán 49k')}
-            onAction={user?.plan !== 'PLUS' ? handleUpgrade : () => {}}
+            buttonText={user?.plan === 'PLUS' ? 'Gói hiện tại' : 'Thanh toán 49k'}
+            onAction={user?.plan !== 'PLUS' ? handleUpgradeClick : () => {}}
           />
         </div>
+
+        {showQR && (
+          <div className={styles.modalOverlay} onClick={() => setShowQR(false)}>
+            <div className={styles.modalContent} onClick={e => e.stopPropagation()}>
+              <button className={styles.closeBtn} onClick={() => setShowQR(false)}>
+                <X size={32} strokeWidth={1.5} />
+              </button>
+              <h2 className={styles.modalTitle}>Thanh toán Yummeal Plus</h2>
+              <div className={styles.qrContainer}>
+                {/* Thay thế ảnh dưới bằng ảnh QR thật của bạn (đặt tên qr-payment.png trong public) */}
+                <img src="/qr-payment.png" alt="Mã QR Thanh Toán" className={styles.qrImage} />
+              </div>
+              <div className={styles.paymentInfo}>
+                <p>Trị giá: <strong>49.000đ / tháng</strong></p>
+                <p>Nội dung chuyển khoản (bắt buộc):</p>
+                <div className={styles.transferCode}>YM {user?.email || 'email-cua-ban'}</div>
+                <p className={styles.paymentNote}>
+                  * Ban quản lý sẽ đối chiếu giao dịch và kích hoạt Plus thủ công cho bạn trong vòng 5-10 phút.
+                </p>
+              </div>
+            </div>
+          </div>
+        )}
       </main>
       <DashboardFooter />
     </>

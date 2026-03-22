@@ -2,7 +2,7 @@
 
 import prisma from '@/lib/prisma';
 import bcrypt from 'bcryptjs';
-import { setSession, clearSession } from '@/lib/auth';
+import { setSession, clearSession, getSession } from '@/lib/auth';
 import { revalidatePath } from 'next/cache';
 
 export async function loginAction(formData: FormData) {
@@ -79,4 +79,63 @@ export async function logoutAction() {
   await clearSession();
   revalidatePath('/');
   redirect('/login');
+}
+
+export async function getKitchenGear() {
+  const session = await getSession();
+  if (!session || !session.id) return [];
+  
+  try {
+    const user = await prisma.user.findUnique({
+      where: { id: session.id },
+      select: { kitchenGear: true }
+    });
+    return user?.kitchenGear || [];
+  } catch (error) {
+    console.error('Error fetching kitchen gear:', error);
+    return [];
+  }
+}
+
+export async function updateKitchenGear(gear: string[]) {
+  const session = await getSession();
+  if (!session || !session.id) return { success: false, error: 'Chưa đăng nhập' };
+
+  try {
+    await prisma.user.update({
+      where: { id: session.id },
+      data: { kitchenGear: gear }
+    });
+    revalidatePath('/settings');
+    revalidatePath('/assistant');
+    return { success: true };
+  } catch (error) {
+    console.error('Error updating kitchen gear:', error);
+    return { success: false, error: 'Không thể cập nhật thiết bị bếp' };
+  }
+}
+
+export async function getUserProfile() {
+  const session = await getSession();
+  if (!session || !session.id) return null;
+
+  try {
+    const user = await prisma.user.findUnique({
+      where: { id: session.id },
+      select: {
+        id: true,
+        name: true,
+        email: true,
+        plan: true,
+        planExpiresAt: true,
+        createdAt: true,
+        updatedAt: true,
+        kitchenGear: true
+      }
+    });
+    return user;
+  } catch (error) {
+    console.error('Error fetching user profile:', error);
+    return null;
+  }
 }

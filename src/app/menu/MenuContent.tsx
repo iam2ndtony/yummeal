@@ -26,7 +26,6 @@ export default function MenuContent({ weeklyMenu }: { weeklyMenu: any[] }) {
                 <Calendar size={20} className={styles.calendarIcon} />
                 <h2 className={styles.dayTitle}>{dayPlan.day}</h2>
               </div>
-              <button className={styles.editPill}>Chỉnh sửa</button>
             </div>
 
             <div className={styles.mealsGrid}>
