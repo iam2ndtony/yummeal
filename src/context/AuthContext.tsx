@@ -8,6 +8,8 @@ interface User {
   email: string;
   name?: string;
   plan?: string;
+  kitchenGear?: string[];
+  updatedAt?: Date;
 }
 
 interface AuthContextType {
