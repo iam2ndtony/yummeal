@@ -128,42 +128,105 @@ export default function AddFridgeModal() {
                {/* Right Side: Form */}
               <div className={styles.formSection}>
                 <h3 className={styles.sectionTitle}>Chi tiết</h3>
-                <form onSubmit={handleSubmit} className="modalForm" style={{ padding: 0 }}>
+                
+                <style>{`
+                  .modern-input-group label {
+                    font-weight: 700;
+                    color: #334155;
+                    font-size: 0.85rem;
+                    margin-bottom: 6px;
+                    display: block;
+                  }
+                  .modern-input {
+                    width: 100%;
+                    padding: 14px 16px;
+                    background-color: #f1f5f9;
+                    border: 2px solid transparent;
+                    border-radius: 12px;
+                    font-size: 0.95rem;
+                    transition: all 0.2s;
+                    outline: none;
+                    color: #1e293b;
+                    font-weight: 500;
+                  }
+                  .modern-input:focus {
+                    background-color: #fff;
+                    border-color: var(--primary);
+                    box-shadow: 0 4px 12px rgba(211, 84, 0, 0.1);
+                  }
+                  .chip-container {
+                    display: flex;
+                    flex-wrap: wrap;
+                    gap: 8px;
+                  }
+                  .chip {
+                    padding: 8px 14px;
+                    border-radius: 99px;
+                    background-color: #f1f5f9;
+                    color: #64748b;
+                    font-size: 0.85rem;
+                    font-weight: 600;
+                    cursor: pointer;
+                    border: 2px solid transparent;
+                    transition: all 0.2s;
+                    flex: 1 1 auto;
+                    text-align: center;
+                  }
+                  .chip.active {
+                    background-color: #fffaf5;
+                    color: var(--primary);
+                    border-color: var(--primary);
+                  }
+                `}</style>
+                
+                <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '20px', padding: 0, marginTop: '16px' }}>
                   {error && <div className="errorAlert">{error}</div>}
                   
-                  <div className="inputGroup">
-                    <label htmlFor="name">Tên thực phẩm</label>
-                    <input type="text" id="name" name="name" value={name} onChange={e => setName(e.target.value)} required placeholder="VD: Sữa tươi" />
+                  <div className="modern-input-group">
+                    <label htmlFor="name">Trữ gì hôm nay?</label>
+                    <input type="text" id="name" name="name" className="modern-input" value={name} onChange={e => setName(e.target.value)} required placeholder="VD: Sữa tươi, Sườn non..." />
                   </div>
 
-                  <div className="inputGroup">
-                    <label htmlFor="category">Danh mục</label>
-                    <select id="category" name="category" value={category} onChange={e => setCategory(e.target.value)} required>
-                      <option value="Thịt">Thịt</option>
-                      <option value="Rau củ">Rau củ</option>
-                      <option value="Ngũ cốc">Ngũ cốc</option>
-                      <option value="Gia vị">Gia vị</option>
-                      <option value="Sữa và trứng">Sữa & Trứng</option>
-                      <option value="Khác">Khác</option>
-                    </select>
+                  <div className="modern-input-group">
+                    <label>Phân loại mảng</label>
+                    <div className="chip-container">
+                      {[
+                        { val: 'Thịt', icon: '🥩' },
+                        { val: 'Rau củ', icon: '🥬' },
+                        { val: 'Sữa và trứng', icon: '🥚' },
+                        { val: 'Ngũ cốc', icon: '🌾' },
+                        { val: 'Gia vị', icon: '🧂' },
+                        { val: 'Khác', icon: '📦' }
+                      ].map(cat => (
+                        <div 
+                          key={cat.val}
+                          className={`chip ${category === cat.val ? 'active' : ''}`}
+                          onClick={() => setCategory(cat.val)}
+                        >
+                          {cat.icon} {cat.val === 'Sữa và trứng' ? 'Sữa/Trứng' : cat.val}
+                        </div>
+                      ))}
+                    </div>
                   </div>
 
-                  <div className="inputGroup">
-                    <label htmlFor="quantity">Số lượng</label>
-                    <input type="text" id="quantity" name="quantity" value={quantity} onChange={e => setQuantity(e.target.value)} required placeholder="VD: 2 kg, 1 hộp..." />
+                  <div style={{ display: 'grid', gridTemplateColumns: 'minmax(0, 1fr) minmax(0, 1fr)', gap: '16px' }}>
+                    <div className="modern-input-group">
+                      <label htmlFor="quantity">Số lượng</label>
+                      <input type="text" id="quantity" name="quantity" className="modern-input" value={quantity} onChange={e => setQuantity(e.target.value)} required placeholder="VD: 500g, 2 hộp..." />
+                    </div>
+
+                    <div className="modern-input-group">
+                      <label htmlFor="expiryDays">Thời hạn (ngày)</label>
+                      <input type="number" id="expiryDays" name="expiryDays" className="modern-input" value={expiryDays} onChange={e => setExpiryDays(e.target.value)} required min="1" placeholder="VD: 7" />
+                    </div>
                   </div>
 
-                  <div className="inputGroup">
-                    <label htmlFor="expiryDays">Lưu trữ trong (số ngày)</label>
-                    <input type="number" id="expiryDays" name="expiryDays" value={expiryDays} onChange={e => setExpiryDays(e.target.value)} required min="1" placeholder="VD: 7" />
-                  </div>
-
-                  <div className="modalActions" style={{ marginTop: 'auto', paddingTop: '20px' }}>
-                    <button type="button" className="btn-secondary" onClick={() => setIsOpen(false)}>
-                      Hủy
+                  <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '12px', marginTop: 'auto', paddingTop: '16px', borderTop: '1px solid #f1f5f9' }}>
+                    <button type="button" onClick={() => setIsOpen(false)} style={{ padding: '12px 24px', borderRadius: '12px', border: 'none', background: '#f8fafc', color: '#64748b', fontWeight: 700, cursor: 'pointer', fontSize: '0.95rem' }}>
+                      Đóng
                     </button>
-                    <button type="submit" className="btn-primary" disabled={isLoading}>
-                      {isLoading ? <Loader2 size={18} className="spin" /> : 'Lưu'}
+                    <button type="submit" disabled={isLoading} style={{ padding: '12px 24px', borderRadius: '12px', border: 'none', background: 'var(--primary)', color: 'white', fontWeight: 700, cursor: 'pointer', fontSize: '0.95rem', display: 'flex', alignItems: 'center', gap: '8px', boxShadow: '0 8px 16px -4px rgba(211,84,0,0.3)' }}>
+                      {isLoading ? <Loader2 size={18} className="spin" /> : 'Lưu vào tủ lạnh'}
                     </button>
                   </div>
                 </form>

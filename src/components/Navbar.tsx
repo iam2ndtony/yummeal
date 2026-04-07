@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Home, Thermometer, BookOpen, CalendarDays, MessageCircle, User as UserIcon, LogOut } from 'lucide-react';
+import { Home, Thermometer, BookOpen, CalendarDays, MessageCircle, User as UserIcon, LogOut, Users } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
 import NotificationBell from './NotificationBell';
 import ThemeToggle from './ThemeToggle';
@@ -11,6 +11,7 @@ import styles from './Navbar.module.css';
 const NAV_ITEMS = [
   { href: '/', label: 'Trang chủ', icon: Home },
   { href: '/fridge', label: 'Tủ lạnh', icon: Thermometer },
+  { href: '/community', label: 'Chia sẻ', icon: Users },
   { href: '/recipes', label: 'Công thức', icon: BookOpen },
   { href: '/menu', label: 'Thực đơn', icon: CalendarDays },
   { href: '/assistant', label: 'Trợ lý AI', icon: MessageCircle },

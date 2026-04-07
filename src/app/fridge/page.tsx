@@ -4,6 +4,7 @@ import styles from './page.module.css';
 import { getFridgeItems, deleteFridgeItem } from '@/actions/fridge';
 import AddFridgeModal from './AddFridgeModal';
 import { FridgeItem } from '@prisma/client';
+import FridgeItemQuantity from './FridgeItemQuantity';
 
 export default async function FridgePage() {
   const fridgeItems: any[] = await getFridgeItems();
@@ -85,7 +86,7 @@ export default async function FridgePage() {
                   <div className={styles.detailsList}>
                     <div className={styles.detailItem}>
                       <span className={styles.detailLabel}>Số lượng:</span>
-                      <span className={styles.detailValue}>{item.quantity}</span>
+                      <FridgeItemQuantity itemId={item.id} initialQuantity={item.quantity} />
                     </div>
                     <div className={styles.detailItem}>
                       <span className={styles.detailLabel}>Tình trạng:</span>

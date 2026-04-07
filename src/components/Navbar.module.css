@@ -185,8 +185,56 @@
   background: rgba(211, 84, 0, 0.08);
 }
 
+@media (max-width: 1024px) {
+  .navLink span {
+    display: none;
+  }
+  .navLink {
+    padding: 8px;
+  }
+  .navContainer {
+    gap: 12px;
+  }
+}
+
 @media (max-width: 768px) {
   .navLinks {
     display: none;
+  }
+  .navContainer {
+    gap: 8px;
+    padding-left: 12px;
+    padding-right: 12px;
+  }
+  .navActions {
+    gap: 6px;
+  }
+  .registerBtn, .loginBtn {
+    padding: 6px 12px;
+    font-size: 0.8rem;
+  }
+  .logo {
+    font-size: 1rem;
+    gap: 4px;
+  }
+  .userName {
+    display: none;
+  }
+  .upgradeBtn {
+    padding: 6px;
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0;
+  }
+  .upgradeBtn::before {
+    content: '★';
+    font-size: 1rem;
+  }
+  .userProfileWrapper {
+    padding: 2px 4px;
+    gap: 4px;
   }
 }

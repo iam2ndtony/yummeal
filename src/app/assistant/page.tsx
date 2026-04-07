@@ -1,8 +1,9 @@
 'use client';
 
 import { useState, useRef, useEffect } from 'react';
-import { Bot, User as UserIcon, Send, Menu, X, Plus, Clock, MessageSquare } from 'lucide-react';
-import { sendChatMessage, getChatSessions, getChatSession, startNewChat } from '@/actions/chat';
+import { Bot, User as UserIcon, Send, Menu, X, Plus, Clock, MessageSquare, ChefHat, Save } from 'lucide-react';
+import { sendChatMessage, getChatSessions, getChatSession, startNewChat, deductRecipeIngredients } from '@/actions/chat';
+import { saveRecipeFromAI } from '@/actions/recipes';
 import styles from './page.module.css';
 import DashboardFooter from '@/components/DashboardFooter';
 import ReactMarkdown from 'react-markdown';
@@ -38,8 +39,60 @@ export default function AssistantPage() {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [deductingIndex, setDeductingIndex] = useState<number | null>(null);
+  const [savingIndex, setSavingIndex] = useState<number | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const { user } = useAuth();
+
+  const handleCookRecipe = async (content: string, index: number) => {
+    setDeductingIndex(index);
+    try {
+      const result = await deductRecipeIngredients(content);
+      if (result.success) {
+        setMessages(prev => [
+          ...prev,
+          { role: 'system', content: result.message! }
+        ]);
+      } else {
+        setMessages(prev => [
+          ...prev,
+          { role: 'system', content: `Lỗi: ${result.error}` }
+        ]);
+      }
+    } catch {
+      setMessages(prev => [
+        ...prev,
+        { role: 'system', content: 'Lỗi: Không thể kết nối với server để trừ nguyên liệu.' }
+      ]);
+    } finally {
+      setDeductingIndex(null);
+    }
+  };
+
+  const handleSaveRecipe = async (content: string, index: number) => {
+    setSavingIndex(index);
+    try {
+      const result = await saveRecipeFromAI(content);
+      if (result.success) {
+        setMessages(prev => [
+          ...prev,
+          { role: 'system', content: result.message! }
+        ]);
+      } else {
+        setMessages(prev => [
+          ...prev,
+          { role: 'system', content: `Lỗi lưu công thức: ${result.error}` }
+        ]);
+      }
+    } catch {
+      setMessages(prev => [
+        ...prev,
+        { role: 'system', content: 'Lỗi: Không thể kết nối với server để lưu công thức.' }
+      ]);
+    } finally {
+      setSavingIndex(null);
+    }
+  };
 
   // Scroll smoothly to bottom on new message
   useEffect(() => {
@@ -195,7 +248,23 @@ export default function AssistantPage() {
           <div className={styles.chatWrapper}>
             <div className={styles.chatBox}>
               {messages.map((msg, i) => {
-                if (msg.role === 'system') return null; // Hide system messages
+                if (msg.role === 'system') {
+                  return (
+                    <div key={i} className={styles.systemMessageContainer}>
+                      <div className={styles.systemMessageBubble}>
+                        {msg.content}
+                      </div>
+                    </div>
+                  );
+                }
+
+                const isLast = i === messages.length - 1;
+                const isAssistant = msg.role === 'assistant';
+                const looksLikeRecipe = isAssistant && msg.content.length > 200 && (msg.content.includes('uyên liệu') || msg.content.includes('ông thức'));
+                
+                // Show buttons if it's the recipe message and no newer user/assistant message exists
+                const noNewerMainMessage = messages.slice(i + 1).every(m => m.role === 'system');
+                const showDeductBtn = looksLikeRecipe && noNewerMainMessage && !isLoading;
 
                 return (
                   <div
@@ -207,7 +276,31 @@ export default function AssistantPage() {
                     </div>
                     <div className={`${styles.messageBubble} ${msg.role === 'user' ? styles.userBubble : styles.assistantBubble}`}>
                       {msg.role === 'assistant'
-                        ? <div className={styles.markdownBody}><ReactMarkdown>{msg.content}</ReactMarkdown></div>
+                        ? (
+                          <>
+                            <div className={styles.markdownBody}><ReactMarkdown>{msg.content}</ReactMarkdown></div>
+                            {showDeductBtn && (
+                              <div className={styles.actionButtonsRow}>
+                                <button 
+                                  onClick={() => handleCookRecipe(msg.content, i)}
+                                  disabled={deductingIndex === i || savingIndex === i}
+                                  className={styles.cookBtn}
+                                >
+                                  <ChefHat size={16} />
+                                  {deductingIndex === i ? 'Đang xử lý...' : 'Trừ nguyên liệu Tủ lạnh'}
+                                </button>
+                                <button 
+                                  onClick={() => handleSaveRecipe(msg.content, i)}
+                                  disabled={savingIndex === i || deductingIndex === i}
+                                  className={`${styles.cookBtn} ${styles.saveBtn}`}
+                                >
+                                  <Save size={16} />
+                                  {savingIndex === i ? 'Đang lưu...' : 'Lưu Công thức'}
+                                </button>
+                              </div>
+                            )}
+                          </>
+                        )
                         : msg.content}
                     </div>
                   </div>

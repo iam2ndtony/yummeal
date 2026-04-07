@@ -3,6 +3,8 @@ import Link from 'next/link';
 import { ChevronLeft, Clock, Users } from 'lucide-react';
 import { getRecipeById, getDefaultIngredients } from '@/actions/recipes';
 import DashboardFooter from '@/components/DashboardFooter';
+import RecipeImageUpload from './RecipeImageUpload';
+import RecipeActions from './RecipeActions';
 import styles from './page.module.css';
 
 interface Props {
@@ -15,8 +17,27 @@ export default async function RecipeDetailPage({ params }: Props) {
 
   if (!recipe) notFound();
 
-  const ingredients = await getDefaultIngredients(recipe.title);
-  const ingredientList: string[] = ingredients ? ingredients.split('\n').filter(Boolean) : [];
+  let ingredientList: string[] = [];
+  let detailedInstructionsDisplay: string = '';
+
+  try {
+    const parsedData = JSON.parse(recipe.detailedInstructions || '{}');
+    if (parsedData && parsedData.aiIngredients) {
+      ingredientList = parsedData.aiIngredients;
+    }
+    if (parsedData && parsedData.aiDetailed) {
+      detailedInstructionsDisplay = parsedData.aiDetailed;
+    }
+  } catch (e) {
+    // If not JSON, it's just a normal string
+    detailedInstructionsDisplay = recipe.detailedInstructions;
+  }
+
+  if (ingredientList.length === 0) {
+    const ingredientsString = await getDefaultIngredients(recipe.title);
+    ingredientList = ingredientsString ? ingredientsString.split('\n').filter(Boolean) : [];
+  }
+
   const stepList: string[] = recipe.instructions ? recipe.instructions.split('\n').filter(Boolean) : [];
 
   return (
@@ -40,7 +61,9 @@ export default async function RecipeDetailPage({ params }: Props) {
           {/* Recipe card */}
           <div className={styles.recipeCard}>
             {/* Hero food photo */}
-            {recipe.image && (
+            {!recipe.image?.startsWith('/images/') ? (
+              <RecipeImageUpload recipeId={recipe.id} initialImage={recipe.image} />
+            ) : recipe.image && (
               <div className={styles.heroPhoto}>
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img src={recipe.image} alt={recipe.title} />
@@ -95,11 +118,11 @@ export default async function RecipeDetailPage({ params }: Props) {
             </div>
 
             {/* Detailed instructions */}
-            {recipe.detailedInstructions && (
+            {detailedInstructionsDisplay && (
               <div className={styles.detailedSection}>
                 <h2 className={styles.sectionTitle}>Hướng dẫn chi tiết</h2>
                 <div className={styles.detailedText}>
-                  {recipe.detailedInstructions.split('\n').map((line: string, i: number) => (
+                  {detailedInstructionsDisplay.split('\n').map((line: string, i: number) => (
                     <p key={i}>{line}</p>
                   ))}
                 </div>
@@ -108,8 +131,16 @@ export default async function RecipeDetailPage({ params }: Props) {
 
             {/* Action buttons */}
             <div className={styles.actions}>
-              <Link href="/menu" className={styles.btnPrimary}>Thêm vào thực đơn</Link>
-              <Link href="/recipes" className={styles.btnOutline}>Quay lại công thức</Link>
+              {!recipe.image?.startsWith('/images/') && (
+                <RecipeActions 
+                  recipe={recipe} 
+                  ingredientList={ingredientList} 
+                  detailedInstructionsDisplay={detailedInstructionsDisplay} 
+                />
+              )}
+              <div style={{ display: 'flex', gap: '12px', marginTop: '16px' }}>
+                <Link href="/recipes" className={styles.btnOutline}>Quay lại công thức</Link>
+              </div>
             </div>
           </div>
         </div>

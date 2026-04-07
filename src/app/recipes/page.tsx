@@ -34,10 +34,56 @@ export default function RecipesPage() {
         </div>
 
         <div className={`container ${styles.inner}`}>
+          {/* Sổ tay công thức cá nhân */}
+          {!loading && recipes.filter(r => !r.image?.startsWith('/images/')).length > 0 && (
+            <div style={{ marginBottom: '40px' }}>
+              <div className={styles.header} style={{ marginBottom: '20px' }}>
+                <h2 className={styles.title} style={{ fontSize: '1.8rem' }}>Sổ tay công thức cá nhân</h2>
+                <p className={styles.subtitle}>Các công thức do Trợ lý AI tạo và lưu trữ</p>
+              </div>
+
+              <div className={styles.grid}>
+                {recipes.filter(r => !r.image?.startsWith('/images/')).map((recipe: Recipe) => (
+                  <div
+                    key={recipe.id}
+                    className={styles.card}
+                    onClick={() => router.push(`/recipes/${recipe.id}`)}
+                  >
+                    <div
+                      className={styles.cardImage}
+                      style={{
+                        backgroundImage: recipe.image ? `url(${recipe.image})` : undefined,
+                        backgroundColor: recipe.image ? undefined : '#f5f1e9',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center'
+                      }}
+                    >
+                      {!recipe.image && <span style={{ color: '#D35400', fontSize: '0.9rem', fontWeight: 600 }}>Chưa có ảnh</span>}
+                      <span className={`${styles.badge} ${styles[recipe.difficultyType]}`} style={{ position: 'absolute', top: 16, right: 16 }}>
+                        {recipe.difficulty}
+                      </span>
+                    </div>
+
+                    <div className={styles.cardContent}>
+                      <h3 className={styles.recipeTitle}>{recipe.title}</h3>
+                      <p className={styles.recipeDescription}>{recipe.description}</p>
+                      <div className={styles.metaInfo}>
+                        <div className={styles.metaItem}><Clock size={14} /><span>{recipe.time}</span></div>
+                        <div className={styles.metaItem}><Users size={14} /><span>{recipe.servings}</span></div>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
           <div className={styles.header}>
-            <h1 className={styles.title}>Công thức món Việt</h1>
+            <h1 className={styles.title}>Bộ sưu tập Yummeal</h1>
             <p className={styles.subtitle}>Món ăn chuẩn vị với hướng dẫn từng bước chi tiết</p>
           </div>
+
 
           <div className={styles.grid}>
             {loading ? (
@@ -45,7 +91,7 @@ export default function RecipesPage() {
             ) : recipes.length === 0 ? (
               <div className={styles.emptyState}><p>Chưa có công thức nào. Vui lòng đăng nhập để xem.</p></div>
             ) : (
-            recipes.map((recipe: Recipe) => (
+            recipes.filter(r => r.image?.startsWith('/images/')).map((recipe: Recipe) => (
               <div
                 key={recipe.id}
                 className={styles.card}
@@ -77,7 +123,7 @@ export default function RecipesPage() {
           )}
         </div>
 
-        {!loading && recipes.length > 6 && (
+        {!loading && recipes.filter(r => r.image?.startsWith('/images/')).length > 6 && (
           <div className={styles.loadMore}>
             <button className="btn-primary" style={{ padding: '12px 40px' }}>Xem thêm</button>
           </div>

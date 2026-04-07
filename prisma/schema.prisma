@@ -18,10 +18,13 @@ model User {
   generationCount    Int          @default(0)
   lastGenerationDate DateTime?
   kitchenGear        String[]     @default([])
+  avatarUrl          String?
   fridgeItems        FridgeItem[]
   recipes            Recipe[]
   menuPlans          MenuPlan[]
   chatSessions       ChatSession[]
+  communityPosts     CommunityPost[]
+  communityLikes     CommunityLike[]
   createdAt          DateTime     @default(now())
   updatedAt          DateTime     @updatedAt
 }
@@ -71,8 +74,10 @@ model Recipe {
   difficulty     String
   difficultyType String
   image          String
+  ingredients    Json     @default("[]")
   instructions   String   @default("")
   detailedInstructions String @default("")
+  communityPosts CommunityPost[]
   createdAt      DateTime @default(now())
   updatedAt      DateTime @updatedAt
 }
@@ -106,4 +111,29 @@ model MealIngredient {
   name      String
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+}
+
+model CommunityPost {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  recipeId  String?
+  recipe    Recipe?  @relation(fields: [recipeId], references: [id], onDelete: SetNull)
+  imageUrl  String
+  caption   String?
+  featured  Boolean  @default(false)
+  likes     CommunityLike[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model CommunityLike {
+  id        String   @id @default(cuid())
+  postId    String
+  post      CommunityPost @relation(fields: [postId], references: [id], onDelete: Cascade)
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+
+  @@unique([postId, userId])
 }

@@ -37,7 +37,7 @@
 }
 
 .heroTitle {
-  font-size: clamp(5rem, 18vw, 14rem);
+  font-size: clamp(2.5rem, 15vw, 14rem);
   font-weight: 900;
   color: white;
   letter-spacing: -0.02em;
@@ -63,6 +63,7 @@
   justify-content: center;
   width: 100%;
   margin: 0 auto;
+  padding: 0 16px;
 }
 
 .ctaBtn {
@@ -119,7 +120,7 @@
   gap: 32px;
   max-width: 1200px;
   margin: 0 auto;
-  font-size: clamp(1.8rem, 5vw, 3.5rem);
+  font-size: clamp(1.2rem, 5vw, 3.5rem);
   font-weight: 800;
   color: white;
   letter-spacing: -0.01em;
@@ -128,4 +129,15 @@
 
 .dot {
   opacity: 0.6;
+}
+
+@media (max-width: 500px) {
+  .taglineContent {
+    flex-direction: column;
+    gap: 8px;
+    padding: 16px 0;
+  }
+  .dot {
+    display: none;
+  }
 }

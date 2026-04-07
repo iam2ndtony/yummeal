@@ -251,3 +251,101 @@ export async function startNewChat(message: string) {
   const aiRes = await sendChatMessage([{ role: 'user', content: message }], result.sessionId);
   return { ...aiRes, sessionId: result.sessionId, title };
 }
+
+export async function deductRecipeIngredients(recipeContent: string) {
+  const session = await getSession();
+  if (!session || !session.id) {
+    return { success: false, error: 'Vui lòng đăng nhập.' };
+  }
+
+  const apiKey = process.env.OPENROUTER_API_KEY;
+  if (!apiKey) return { success: false, error: 'Chưa cấu hình API Key.' };
+
+  try {
+    const fridgeItems = await prisma.fridgeItem.findMany({
+      where: { userId: session.id },
+      select: { id: true, name: true, quantity: true }
+    });
+
+    if (fridgeItems.length === 0) {
+      return { success: false, error: 'Tủ lạnh của bạn đang trống.' };
+    }
+
+    const fridgeJson = JSON.stringify(fridgeItems);
+
+    const systemPrompt = `Bạn là một hệ thống tính toán nguyên liệu. 
+Nhiệm vụ của bạn là đọc công thức nấu ăn do người dùng cung cấp và danh sách các nguyên liệu đang có trong tủ lạnh.
+Hãy xác định xem có nguyên liệu nào trong tủ lạnh được sử dụng trong công thức không, và tính toán số lượng/khối lượng còn lại sau khi dùng.
+- Nếu dùng hết hoàn toàn hoặc dùng một phần không xác định rõ mà coi như hết, trả về newQuantity là "0" hoặc "".
+- Nếu dùng 1 phần (ví dụ tủ lạnh có "10 quả", công thức dùng "2 quả"), hãy trả về newQuantity là "8 quả".
+- Xử lý các đơn vị thông dụng ở Việt Nam (kg, g, quả, nhánh, con, hộp, v.v.)
+- Chỉ trả về ĐÚNG MỘT DÒNG JSON HỢP LỆ VÀ DUY NHẤT nằm trong \`\`\`json ... \`\`\`, KHÔNG CÓ TEXT NÀO KHÁC.
+
+Format bắt buộc của Output:
+\`\`\`json
+[
+  { "id": "id-nguyen-lieu-1", "name": "Tên", "newQuantity": "500g" },
+  { "id": "id-nguyen-lieu-2", "name": "Tên", "newQuantity": "0" }
+]
+\`\`\`
+Nếu không có nguyên liệu nào trùng khớp, trả về [].
+
+DANH SÁCH TỦ LẠNH:
+${fridgeJson}
+`;
+
+    const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${apiKey}`,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        model: 'google/gemini-3.1-flash-lite-preview',
+        messages: [
+          { role: 'system', content: systemPrompt },
+          { role: 'user', content: recipeContent }
+        ]
+      })
+    });
+
+    if (!response.ok) return { success: false, error: 'Kết nối AI thất bại.' };
+
+    const data = await response.json();
+    let aiOutput = data.choices[0].message.content.trim();
+
+    // Parse json
+    if (aiOutput.includes('```json')) {
+      aiOutput = aiOutput.split('```json')[1].split('```')[0].trim();
+    } else if (aiOutput.includes('```')) {
+      aiOutput = aiOutput.split('```')[1].split('```')[0].trim();
+    }
+
+    const updates = JSON.parse(aiOutput);
+    if (!Array.isArray(updates) || updates.length === 0) {
+      return { success: false, error: 'Không tìm thấy nguyên liệu nào trùng khớp trong tủ lạnh.' };
+    }
+
+    const namesUpdated: string[] = [];
+
+    for (const update of updates) {
+      if (!update.id) continue;
+      namesUpdated.push(update.name);
+      if (update.newQuantity === '0' || update.newQuantity === '') {
+        await prisma.fridgeItem.deleteMany({ where: { id: update.id, userId: session.id } });
+      } else {
+        await prisma.fridgeItem.updateMany({
+          where: { id: update.id, userId: session.id },
+          data: { quantity: update.newQuantity }
+        });
+      }
+    }
+
+    revalidatePath('/fridge');
+    return { success: true, message: `Đã trừ ${namesUpdated.join(', ')} khỏi tủ lạnh!` };
+  } catch (error) {
+    console.error('Error auto-deducting:', error);
+    return { success: false, error: 'Có lỗi xảy ra khi tự động trừ.' };
+  }
+}
+

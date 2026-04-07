@@ -120,6 +120,7 @@ export async function getUserProfile() {
   if (!session || !session.id) return null;
 
   try {
+    // Fetch without avatarUrl via ORM (stale client), then fetch avatarUrl via raw
     const user = await prisma.user.findUnique({
       where: { id: session.id },
       select: {
@@ -130,12 +131,38 @@ export async function getUserProfile() {
         planExpiresAt: true,
         createdAt: true,
         updatedAt: true,
-        kitchenGear: true
+        kitchenGear: true,
       }
     });
-    return user;
+    if (!user) return null;
+
+    // Fetch avatarUrl separately via raw query
+    const rows = await prisma.$queryRawUnsafe<{ avatarUrl: string | null }[]>(
+      `SELECT "avatarUrl" FROM "User" WHERE id = $1`,
+      session.id
+    );
+    return { ...user, avatarUrl: rows[0]?.avatarUrl ?? null };
   } catch (error) {
     console.error('Error fetching user profile:', error);
     return null;
+  }
+}
+
+export async function updateAvatar(avatarBase64: string) {
+  const session = await getSession();
+  if (!session?.id) return { success: false, error: 'Chưa đăng nhập' };
+  try {
+    // Use executeRaw to bypass stale Prisma client types
+    await prisma.$executeRawUnsafe(
+      `UPDATE "User" SET "avatarUrl" = $1, "updatedAt" = NOW() WHERE id = $2`,
+      avatarBase64,
+      session.id
+    );
+    revalidatePath('/settings');
+    revalidatePath('/community');
+    return { success: true };
+  } catch (error) {
+    console.error('Error updating avatar:', error);
+    return { success: false, error: 'Không thể cập nhật ảnh đại diện' };
   }
 }

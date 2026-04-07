@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 import Navbar from '@/components/Navbar';
+import MobileBottomNav from '@/components/MobileBottomNav';
 
 import { AuthProvider } from '@/context/AuthContext';
 import { getSession } from '@/lib/auth';
@@ -23,6 +24,7 @@ export default async function RootLayout({
         <AuthProvider initialSession={session as any}>
           <Navbar />
           <main>{children}</main>
+          <MobileBottomNav />
         </AuthProvider>
       </body>
     </html>

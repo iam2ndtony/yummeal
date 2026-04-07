@@ -139,7 +139,7 @@
   background: rgba(211, 84, 0, 0.06);
   color: #c94c02;
   font-weight: 800;
-  font-size: 1.6rem;
+  font-size: clamp(1rem, 4vw, 1.6rem);
   padding: 20px;
   border-radius: 12px;
   text-align: center;
@@ -147,6 +147,8 @@
   user-select: all;
   margin: 8px 0;
   letter-spacing: 0.5px;
+  word-break: break-all;
+  overflow-wrap: break-word;
 }
 
 .paymentNote {

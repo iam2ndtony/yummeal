@@ -24,7 +24,12 @@ export default function MenuContent({ weeklyMenu }: { weeklyMenu: any[] }) {
             <div className={styles.dayHeader}>
               <div className={styles.dayTitleWrapper}>
                 <Calendar size={20} className={styles.calendarIcon} />
-                <h2 className={styles.dayTitle}>{dayPlan.day}</h2>
+                <div>
+                  <h2 className={styles.dayTitle}>{dayPlan.day}</h2>
+                  <p style={{ margin: 0, fontSize: '0.78rem', color: 'var(--text-muted)', marginTop: '2px' }}>
+                    Tạo lúc: {new Date(dayPlan.createdAt).toLocaleDateString('vi-VN', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' })}
+                  </p>
+                </div>
               </div>
             </div>
 

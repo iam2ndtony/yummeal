@@ -134,3 +134,27 @@ export async function deleteFridgeItem(id: string) {
     return { success: false, error: 'Không thể xóa' };
   }
 }
+
+export async function updateFridgeItemQuantity(id: string, newQuantityString: string) {
+  const session = await getSession();
+  if (!session || !session.id) return { success: false, error: 'Chưa đăng nhập' };
+
+  try {
+    const item = await prisma.fridgeItem.findFirst({
+      where: { id, userId: session.id }
+    });
+    
+    if (!item) return { success: false, error: 'Không tìm thấy' };
+
+    await prisma.fridgeItem.update({
+      where: { id },
+      data: { quantity: newQuantityString }
+    });
+    
+    revalidatePath('/fridge');
+    return { success: true };
+  } catch (error) {
+    console.error('Error updating fridge item:', error);
+    return { success: false, error: 'Không thể cập nhật' };
+  }
+}

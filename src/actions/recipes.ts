@@ -2,6 +2,7 @@
 
 import prisma from '@/lib/prisma';
 import { getSession } from '@/lib/auth';
+import { revalidatePath } from 'next/cache';
 
 const defaultRecipesContent = [
   {
@@ -152,3 +153,178 @@ export async function getDefaultIngredients(title: string): Promise<string> {
   const match = defaultRecipesContent.find((r) => r.title === title);
   return match?.ingredients ?? '';
 }
+
+export async function saveRecipeFromAI(recipeContent: string) {
+  const session = await getSession();
+  if (!session || !session.id) {
+    return { success: false, error: 'Vui lòng đăng nhập để lưu công thức.' };
+  }
+
+  const apiKey = process.env.OPENROUTER_API_KEY;
+  if (!apiKey) return { success: false, error: 'Chưa cấu hình API Key.' };
+
+  try {
+    const systemPrompt = `Bạn là một chuyên gia ẩm thực. Hãy đọc đoạn nội dung công thức món ăn dưới đây và trích xuất thông tin thành một file JSON hợp lệ.
+Yêu cầu bắt buộc về fields JSON:
+- "title": Tên món ăn (ngắn gọn).
+- "description": Mô tả hấp dẫn 1-2 câu về món ăn.
+- "time": Thời gian thực hiện (vd: "30 phút").
+- "servings": Khẩu phần (vd: "2-4 người").
+- "difficulty": Độ khó ("Dễ", "Trung bình", "Khó").
+- "difficultyType": Độ khó bằng tiếng Anh ("easy", "medium", "hard").
+- "ingredients": Một mảng (array) các chuỗi, mỗi chuỗi là 1 loại nguyên liệu (vd: ["500g thịt bò", "2 củ cà rốt"]).
+- "instructions": Các bước làm tóm tắt, đánh số 1. 2. 3. (mỗi bước 1 dòng, trả về Text hoặc Array Text).
+- "detailedInstructions": Hướng dẫn chuyên sâu hoặc mẹo vặt (Text).
+
+Format bắt buộc của Output: Trả về duy nhất 1 block JSON trong cặp \`\`\`json ... \`\`\`. Đảm bảo JSON hợp lệ tuyệt đối.`;
+
+    const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${apiKey}`,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        model: 'google/gemini-3.1-flash-lite-preview',
+        messages: [
+          { role: 'system', content: systemPrompt },
+          { role: 'user', content: recipeContent }
+        ]
+      })
+    });
+
+    if (!response.ok) return { success: false, error: 'Kết nối AI thất bại.' };
+
+    const data = await response.json();
+    let aiOutput = data.choices[0].message.content.trim();
+    
+    // Parse json
+    if (aiOutput.includes('```json')) {
+      aiOutput = aiOutput.split('```json')[1].split('```')[0].trim();
+    } else if (aiOutput.includes('```')) {
+      aiOutput = aiOutput.split('```')[1].split('```')[0].trim();
+    }
+
+    const parsed = JSON.parse(aiOutput);
+
+    // AI sometimes gives an array for instructions instead of text
+    const instructionsStr = Array.isArray(parsed.instructions) 
+      ? parsed.instructions.join('\n') 
+      : String(parsed.instructions || '');
+
+    const detailedInstructionsStr = Array.isArray(parsed.detailedInstructions) 
+      ? parsed.detailedInstructions.join('\n') 
+      : String(parsed.detailedInstructions || '');
+
+    // Pack ingredients into the detailedInstructions using JSON to avoid DB schema changes
+    const ingredientsArray = Array.isArray(parsed.ingredients) ? parsed.ingredients : [];
+    const packedDetailedInstructions = JSON.stringify({
+      aiIngredients: ingredientsArray,
+      aiDetailed: detailedInstructionsStr
+    });
+
+    // Không tạo ảnh AI nữa, gán chuỗi rỗng để user tự upload ảnh
+    const imageUrl = '';
+
+    await prisma.recipe.create({
+      data: {
+        userId: session.id,
+        title: parsed.title,
+        description: parsed.description,
+        time: parsed.time,
+        servings: parsed.servings,
+        difficulty: parsed.difficulty,
+        difficultyType: parsed.difficultyType,
+        instructions: instructionsStr,
+        detailedInstructions: packedDetailedInstructions,
+        image: imageUrl
+      }
+    });
+
+    revalidatePath('/recipes');
+    return { success: true, message: `Đã lưu công thức "${parsed.title}" vào sổ tay của bạn!` };
+  } catch (error) {
+    console.error('Error saving recipe from AI:', error);
+    return { success: false, error: 'Có lỗi xảy ra khi lưu công thức.' };
+  }
+}
+
+export async function updateRecipeImage(recipeId: string, base64Image: string) {
+  const session = await getSession();
+  if (!session || !session.id) return { success: false, error: 'Vui lòng đăng nhập.' };
+
+  try {
+    const existing = await prisma.recipe.findFirst({
+      where: { id: recipeId, userId: session.id }
+    });
+
+    if (!existing) return { success: false, error: 'Không tìm thấy công thức.' };
+
+    await prisma.recipe.update({
+      where: { id: recipeId },
+      data: { image: base64Image }
+    });
+
+    revalidatePath(`/recipes/${recipeId}`);
+    revalidatePath('/recipes');
+    return { success: true };
+  } catch (error) {
+    console.error('Lỗi khi cập nhật ảnh:', error);
+    return { success: false, error: 'Không thể lưu ảnh.' };
+  }
+}
+
+export async function deleteRecipe(recipeId: string) {
+  const session = await getSession();
+  if (!session || !session.id) return { success: false, error: 'Chưa đăng nhập' };
+
+  try {
+    await prisma.recipe.delete({
+      where: { id: recipeId, userId: session.id }
+    });
+    revalidatePath('/recipes');
+    return { success: true };
+  } catch (error) {
+    console.error('Error deleting recipe:', error);
+    return { success: false, error: 'Không thể xóa công thức' };
+  }
+}
+
+export async function updateRecipe(recipeId: string, data: any) {
+  const session = await getSession();
+  if (!session || !session.id) return { success: false, error: 'Chưa đăng nhập' };
+
+  try {
+    // Determine detailedInstructions format
+    const ingredientsArray = Array.isArray(data.ingredients) ? data.ingredients : typeof data.ingredients === 'string' ? data.ingredients.split('\n').filter(Boolean) : [];
+    
+    let packedDetailedInstructions = '';
+    // If it already doesn't start with /images/, it's a personal recipe
+    packedDetailedInstructions = JSON.stringify({
+      aiIngredients: ingredientsArray,
+      aiDetailed: data.detailedInstructions
+    });
+
+    await prisma.recipe.update({
+      where: { id: recipeId, userId: session.id },
+      data: {
+        title: data.title,
+        description: data.description,
+        time: data.time,
+        servings: data.servings,
+        difficulty: data.difficulty,
+        difficultyType: data.difficulty === 'Dễ' ? 'easy' : data.difficulty === 'Khó' ? 'hard' : 'medium',
+        instructions: data.instructions,
+        detailedInstructions: packedDetailedInstructions
+      }
+    });
+
+    revalidatePath(`/recipes/${recipeId}`);
+    revalidatePath('/recipes');
+    return { success: true };
+  } catch (error) {
+    console.error('Error updating recipe:', error);
+    return { success: false, error: 'Không thể cập nhật công thức' };
+  }
+}
+
