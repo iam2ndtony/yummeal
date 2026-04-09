@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import { Analytics } from '@vercel/analytics/next';
 import Navbar from '@/components/Navbar';
 import MobileBottomNav from '@/components/MobileBottomNav';
 
@@ -26,6 +27,7 @@ export default async function RootLayout({
           <main>{children}</main>
           <MobileBottomNav />
         </AuthProvider>
+        <Analytics />
       </body>
     </html>
   );
