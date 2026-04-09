@@ -238,3 +238,21 @@
     gap: 4px;
   }
 }
+
+[data-theme='dark'] .navbar {
+  background: rgba(18, 18, 18, 0.92);
+  border-bottom-color: rgba(255, 255, 255, 0.05);
+}
+
+[data-theme='dark'] .userProfileWrapper {
+  background: var(--bg-card);
+  border-color: rgba(255, 255, 255, 0.05);
+}
+
+[data-theme='dark'] .navLink:hover {
+  background: rgba(255, 255, 255, 0.05);
+}
+
+[data-theme='dark'] .loginBtn:hover {
+  background: rgba(255, 255, 255, 0.05);
+}

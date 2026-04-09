@@ -132,7 +132,7 @@ export default function AddFridgeModal() {
                 <style>{`
                   .modern-input-group label {
                     font-weight: 700;
-                    color: #334155;
+                    color: var(--text-dark);
                     font-size: 0.85rem;
                     margin-bottom: 6px;
                     display: block;
@@ -140,17 +140,17 @@ export default function AddFridgeModal() {
                   .modern-input {
                     width: 100%;
                     padding: 14px 16px;
-                    background-color: #f1f5f9;
+                    background-color: var(--bg-main);
                     border: 2px solid transparent;
                     border-radius: 12px;
                     font-size: 0.95rem;
                     transition: all 0.2s;
                     outline: none;
-                    color: #1e293b;
+                    color: var(--text-dark);
                     font-weight: 500;
                   }
                   .modern-input:focus {
-                    background-color: #fff;
+                    background-color: var(--bg-card);
                     border-color: var(--primary);
                     box-shadow: 0 4px 12px rgba(211, 84, 0, 0.1);
                   }
@@ -162,8 +162,8 @@ export default function AddFridgeModal() {
                   .chip {
                     padding: 8px 14px;
                     border-radius: 99px;
-                    background-color: #f1f5f9;
-                    color: #64748b;
+                    background-color: var(--bg-main);
+                    color: var(--text-muted);
                     font-size: 0.85rem;
                     font-weight: 600;
                     cursor: pointer;
@@ -173,7 +173,7 @@ export default function AddFridgeModal() {
                     text-align: center;
                   }
                   .chip.active {
-                    background-color: #fffaf5;
+                    background-color: rgba(211, 84, 0, 0.1);
                     color: var(--primary);
                     border-color: var(--primary);
                   }

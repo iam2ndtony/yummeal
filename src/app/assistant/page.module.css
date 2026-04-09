@@ -486,3 +486,34 @@
   background-color: rgba(129, 199, 132, 0.15);
   color: #81c784;
 }
+
+[data-theme='dark'] .assistantBubble {
+  background-color: #2A170F; /* Dark brown/orange to match brand but contrast well */
+  color: var(--text-dark);
+}
+
+[data-theme='dark'] .userBubble {
+  background-color: var(--bg-card);
+  border-color: rgba(255, 255, 255, 0.05);
+}
+
+[data-theme='dark'] .inputArea {
+  background-color: var(--bg-card);
+  border-color: rgba(211, 84, 0, 0.3);
+}
+
+[data-theme='dark'] .inputWrapper {
+  background-color: rgba(0, 0, 0, 0.2);
+}
+
+[data-theme='dark'] .avatarAssistant,
+[data-theme='dark'] .avatarUser {
+  background-color: var(--bg-card);
+  border-color: rgba(255, 255, 255, 0.05);
+}
+
+[data-theme='dark'] .suggestionPill {
+  background-color: rgba(255, 255, 255, 0.05);
+  border-color: rgba(255, 255, 255, 0.1);
+  color: var(--text-dark);
+}

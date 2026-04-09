@@ -294,3 +294,22 @@
     flex: none;
   }
 }
+
+[data-theme='dark'] .card {
+  background: var(--bg-card);
+  border-color: rgba(255, 255, 255, 0.05);
+}
+
+[data-theme='dark'] .quickSelectSection {
+  background: var(--bg-main);
+  border-color: rgba(255, 255, 255, 0.05);
+}
+
+[data-theme='dark'] .quickItem {
+  background: var(--bg-card);
+  border-color: rgba(255, 255, 255, 0.05);
+}
+
+[data-theme='dark'] .quickItem:hover {
+  border-color: rgba(211, 84, 0, 0.5);
+}

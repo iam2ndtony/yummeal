@@ -1,5 +1,5 @@
 .dashboardCard {
-  background: white;
+  background: var(--bg-card);
   border-radius: var(--border-radius-card);
   padding: 24px;
   box-shadow: 0 4px 24px rgba(0,0,0,0.06);
@@ -155,7 +155,7 @@
 }
 
 .wealthIconWrapper {
-  background: white;
+  background: var(--bg-card);
   width: 64px;
   height: 64px;
   border-radius: 50%;

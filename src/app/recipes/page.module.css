@@ -291,3 +291,40 @@
 .detailedText .instructionLine {
   font-size: 0.95rem;
 }
+
+[data-theme='dark'] .card {
+  background: var(--bg-card);
+  border-color: rgba(255, 255, 255, 0.05);
+}
+
+[data-theme='dark'] .modalContent {
+  background: var(--bg-card);
+}
+
+[data-theme='dark'] .closeButton {
+  background: rgba(255, 255, 255, 0.1);
+  color: white;
+}
+
+[data-theme='dark'] .closeButton:hover {
+  background: rgba(255, 255, 255, 0.2);
+}
+
+[data-theme='dark'] .modalHeader {
+  border-bottom-color: rgba(255, 255, 255, 0.1);
+}
+
+[data-theme='dark'] .modeToggleBtn {
+  background: rgba(255, 255, 255, 0.05);
+  border-color: rgba(255, 255, 255, 0.1);
+  color: var(--text-muted);
+}
+
+[data-theme='dark'] .instructionLine {
+  color: var(--text-dark);
+}
+
+[data-theme='dark'] .badge.medium {
+  background: rgba(255, 255, 255, 0.1);
+  color: var(--text-dark);
+}

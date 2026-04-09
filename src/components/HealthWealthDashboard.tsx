@@ -25,7 +25,7 @@ export default function HealthWealthDashboard({ weeklyMenu, fridgeItems }: { wee
         {/* Health Section */}
         <div className={styles.healthSection}>
           <div className={styles.macroBlock} style={{ backgroundColor: 'rgba(231, 76, 60, 0.05)' }}>
-            <div style={{ backgroundColor: 'white', padding: '10px', borderRadius: '50%', boxShadow: '0 2px 10px rgba(231,76,60,0.1)' }}>
+            <div style={{ backgroundColor: 'var(--bg-card)', padding: '10px', borderRadius: '50%', boxShadow: '0 2px 10px rgba(231,76,60,0.1)' }}>
               <Flame size={24} color="#e74c3c" />
             </div>
             <div className={styles.macroInfo}>
@@ -38,7 +38,7 @@ export default function HealthWealthDashboard({ weeklyMenu, fridgeItems }: { wee
           </div>
 
           <div className={styles.macroBlock} style={{ backgroundColor: 'rgba(46, 204, 113, 0.05)' }}>
-            <div style={{ backgroundColor: 'white', padding: '10px', borderRadius: '50%', boxShadow: '0 2px 10px rgba(46,204,113,0.1)' }}>
+            <div style={{ backgroundColor: 'var(--bg-card)', padding: '10px', borderRadius: '50%', boxShadow: '0 2px 10px rgba(46,204,113,0.1)' }}>
               <HeartPulse size={24} color="#2ecc71" />
             </div>
             <div className={styles.macroInfo}>
@@ -51,7 +51,7 @@ export default function HealthWealthDashboard({ weeklyMenu, fridgeItems }: { wee
           </div>
 
           <div className={styles.macroBlock} style={{ backgroundColor: 'rgba(230, 126, 34, 0.05)' }}>
-            <div style={{ backgroundColor: 'white', padding: '10px', borderRadius: '50%', boxShadow: '0 2px 10px rgba(230,126,34,0.1)' }}>
+            <div style={{ backgroundColor: 'var(--bg-card)', padding: '10px', borderRadius: '50%', boxShadow: '0 2px 10px rgba(230,126,34,0.1)' }}>
               <Wheat size={24} color="#e67e22" />
             </div>
             <div className={styles.macroInfo}>
@@ -64,7 +64,7 @@ export default function HealthWealthDashboard({ weeklyMenu, fridgeItems }: { wee
           </div>
 
           <div className={styles.macroBlock} style={{ backgroundColor: 'rgba(241, 196, 15, 0.05)' }}>
-            <div style={{ backgroundColor: 'white', padding: '10px', borderRadius: '50%', boxShadow: '0 2px 10px rgba(241,196,15,0.1)' }}>
+            <div style={{ backgroundColor: 'var(--bg-card)', padding: '10px', borderRadius: '50%', boxShadow: '0 2px 10px rgba(241,196,15,0.1)' }}>
               <Droplet size={24} color="#f39c14" />
             </div>
             <div className={styles.macroInfo}>
