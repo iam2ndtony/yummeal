@@ -1,11 +1,12 @@
 'use client';
 
 import React, { useState } from 'react';
-import { Heart, Flame, Clock, Award, Users, Trash2 } from 'lucide-react';
+import { Heart, Flame, Clock, Award, Users, Trash2, MessageCircle, Search, X as XIcon } from 'lucide-react';
 import { toggleLike, deletePost } from '@/actions/community';
 import SharePostModal from './SharePostModal';
 import PostDetailModal from './PostDetailModal';
 import { useRouter } from 'next/navigation';
+import Link from 'next/link';
 
 // ── Types ────────────────────────────────────────────────────────────────────
 interface PostUser { id: string; name: string; avatarUrl?: string | null; }
@@ -17,7 +18,8 @@ interface Post {
   featured: boolean;
   user: PostUser;
   recipe: PostRecipe | null;
-  _count: { likes: number };
+  _count: { likes: number, comments?: number };
+  comments?: any[];
 }
 interface Recipe { id: string; title: string; }
 
@@ -56,8 +58,8 @@ function EmptyFeed() {
   );
 }
 
-// ── Masonry Card ─────────────────────────────────────────────────────────────
-function MasonryCard({ post, isLiked, canDelete, onLike, onOpen, onDelete }: {
+// ── Feed Card ─────────────────────────────────────────────────────────────
+function FeedCard({ post, isLiked, canDelete, onLike, onOpen, onDelete }: {
   post: Post; isLiked: boolean; canDelete: boolean;
   onLike: (id: string) => void; onOpen: (post: Post) => void; onDelete: (id: string) => void;
 }) {
@@ -81,38 +83,65 @@ function MasonryCard({ post, isLiked, canDelete, onLike, onOpen, onDelete }: {
 
   return (
     <div
-      className="masonry-item"
-      onClick={() => onOpen(post)}
-      style={{ breakInside: 'avoid', marginBottom: '16px', display: 'inline-block', width: '100%', borderRadius: '20px', overflow: 'hidden', position: 'relative', cursor: 'pointer', boxShadow: '0 2px 8px rgba(0,0,0,0.07)' }}
+      style={{ marginBottom: '32px', background: 'white', borderRadius: '24px', overflow: 'hidden', border: '1px solid #f1f5f9', boxShadow: '0 4px 12px rgba(0,0,0,0.02)', maxWidth: '480px', width: '100%', margin: '0 auto 32px auto' }}
     >
-      <img src={post.imageUrl} alt="food" style={{ display: 'block', width: '100%', height: 'auto', transition: 'transform 0.4s', maxHeight: '400px', objectFit: 'cover' }} />
-      <div className="masonry-hover">
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
-          <button
-            onClick={handleLike}
-            style={{ background: localLiked ? 'rgba(239,68,68,0.85)' : 'rgba(255,255,255,0.2)', backdropFilter: 'blur(4px)', padding: '6px 12px', borderRadius: '99px', display: 'flex', alignItems: 'center', gap: '4px', color: 'white', fontWeight: 600, fontSize: '0.85rem', border: 'none', cursor: 'pointer', transition: 'all 0.2s' }}
-          >
-            <Heart size={14} fill={localLiked ? 'white' : 'none'} /> {localCount}
+      {/* Header */}
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '14px 16px' }}>
+        <Link href={`/community/user/${post.user.id}`} style={{ display: 'flex', alignItems: 'center', gap: '10px', textDecoration: 'none' }} onClick={(e) => e.stopPropagation()}>
+          <img src={getAvatar(post.user)} alt="avatar" style={{ width: '36px', height: '36px', borderRadius: '50%', objectFit: 'cover' }} />
+          <span style={{ fontWeight: 700, fontSize: '0.95rem', color: '#1e293b' }}>{post.user.name}</span>
+        </Link>
+        {canDelete && (
+          <button onClick={handleDelete} disabled={deleting} style={{ background: 'none', border: 'none', color: '#cbd5e1', cursor: 'pointer' }}>
+            <Trash2 size={16} />
           </button>
-          {canDelete && (
-            <button
-              onClick={handleDelete}
-              disabled={deleting}
-              style={{ background: 'rgba(239,68,68,0.8)', backdropFilter: 'blur(4px)', width: '32px', height: '32px', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', border: 'none', cursor: 'pointer', color: 'white' }}
-            >
-              <Trash2 size={14} />
-            </button>
-          )}
-        </div>
+        )}
+      </div>
 
-        <div>
-          {post.recipe && <p style={{ color: 'rgba(255,255,255,0.8)', fontSize: '0.78rem', fontWeight: 500, margin: '0 0 4px 0' }}>🔗 {post.recipe.title}</p>}
-          {post.caption && <p style={{ color: 'white', fontSize: '0.9rem', fontWeight: 500, margin: '0 0 10px 0', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>"{post.caption}"</p>}
-          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-            <img src={getAvatar(post.user)} alt={post.user.name} style={{ width: '26px', height: '26px', borderRadius: '50%', border: '1.5px solid white', background: '#fff' }} />
-            <span style={{ color: 'white', fontSize: '0.88rem', fontWeight: 600 }}>{post.user.name}</span>
+      {/* Image */}
+      <div onClick={() => onOpen(post)} style={{ width: '100%', cursor: 'pointer', background: '#0f172a' }}>
+        <img src={post.imageUrl} alt="post" style={{ display: 'block', width: '100%', maxHeight: '600px', objectFit: 'contain' }} />
+      </div>
+
+      {/* Action Bar */}
+      <div style={{ padding: '12px 16px 8px 16px', display: 'flex', gap: '12px' }}>
+        <button onClick={handleLike} style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 0 }}>
+          <Heart size={26} fill={localLiked ? '#ef4444' : 'none'} color={localLiked ? '#ef4444' : '#1e293b'} />
+        </button>
+        <button onClick={() => onOpen(post)} style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 0 }}>
+          <MessageCircle size={26} color="#1e293b" />
+        </button>
+      </div>
+
+      {/* Stats & Caption */}
+      <div style={{ padding: '0 16px 16px 16px' }}>
+        <p style={{ fontWeight: 700, fontSize: '0.9rem', color: '#1e293b', margin: '0 0 6px 0' }}>{localCount} lượt thích</p>
+        {(post.caption || post.recipe) && (
+          <div style={{ fontSize: '0.9rem', color: '#334155', lineHeight: '1.4' }}>
+            <span style={{ fontWeight: 700, marginRight: '6px', color: '#1e293b' }}>{post.user.name}</span>
+            {post.caption}
+            {post.recipe && (
+              <Link
+                href={`/recipes/${post.recipe.id}`}
+                style={{ display: 'inline-flex', alignItems: 'center', gap: '4px', color: 'var(--primary)', fontSize: '0.85rem', marginTop: '4px', fontWeight: 600, textDecoration: 'none' }}
+                onClick={(e) => e.stopPropagation()}
+              >
+                🔗 {post.recipe.title} →
+              </Link>
+            )}
           </div>
-        </div>
+        )}
+        
+        {/* View all comments */}
+        {post._count.comments ? (
+          <button onClick={() => onOpen(post)} style={{ background: 'none', border: 'none', color: '#94a3b8', fontSize: '0.9rem', padding: 0, marginTop: '8px', cursor: 'pointer' }}>
+            Xem tất cả {post._count.comments} bình luận
+          </button>
+        ) : (
+          <button onClick={() => onOpen(post)} style={{ background: 'none', border: 'none', color: '#94a3b8', fontSize: '0.9rem', padding: 0, marginTop: '8px', cursor: 'pointer' }}>
+            Thêm bình luận...
+          </button>
+        )}
       </div>
     </div>
   );
@@ -199,6 +228,7 @@ export default function CommunityClient({
   const [likedIds, setLikedIds] = useState(new Set(initialLikedIds));
   const [selectedPost, setSelectedPost] = useState<Post | null>(null);
   const [myPostsState, setMyPostsState] = useState(myPosts);
+  const [searchQuery, setSearchQuery] = useState('');
 
   const handleLike = async (postId: string) => {
     setLikedIds((prev) => { const n = new Set(prev); n.has(postId) ? n.delete(postId) : n.add(postId); return n; });
@@ -225,6 +255,14 @@ export default function CommunityClient({
     ? [...initialPosts].sort((a, b) => b._count.likes - a._count.likes)
     : [...initialPosts];
 
+  const filtered = searchQuery.trim()
+    ? sorted.filter(p =>
+        p.user.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        (p.caption?.toLowerCase().includes(searchQuery.toLowerCase())) ||
+        (p.recipe?.title.toLowerCase().includes(searchQuery.toLowerCase()))
+      )
+    : sorted;
+
   return (
     <div style={{ backgroundColor: 'var(--bg-main)', minHeight: '100vh', paddingBottom: '100px' }}>
       <style>{`
@@ -238,7 +276,7 @@ export default function CommunityClient({
       `}</style>
 
       {/* HEADER */}
-      <div style={{ background: 'white', padding: '20px 20px', borderBottom: '1px solid rgba(0,0,0,0.05)', position: 'sticky', top: 0, zIndex: 50 }}>
+      <div style={{ background: 'white', padding: '16px 20px', borderBottom: '1px solid rgba(0,0,0,0.05)', position: 'sticky', top: 0, zIndex: 50 }}>
         <div className="container" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '12px' }}>
           <div>
             <h1 style={{ fontSize: '1.8rem', fontWeight: 800, color: '#1e293b', margin: 0, display: 'flex', alignItems: 'center', gap: '10px' }}>
@@ -246,7 +284,27 @@ export default function CommunityClient({
             </h1>
             <p style={{ color: '#94a3b8', fontSize: '0.85rem', margin: '4px 0 0 0' }}>{initialPosts.length} bài đăng từ cộng đồng Yummeal</p>
           </div>
-          <SharePostModal recipes={userRecipes} onSuccess={() => router.refresh()} />
+          <div style={{ display: 'flex', gap: '10px', alignItems: 'center', flexWrap: 'wrap' }}>
+            {/* Search bar */}
+            <div style={{ position: 'relative' }}>
+              <Search size={15} style={{ position: 'absolute', left: '11px', top: '50%', transform: 'translateY(-50%)', color: '#94a3b8', pointerEvents: 'none' }} />
+              <input
+                type="text"
+                value={searchQuery}
+                onChange={e => setSearchQuery(e.target.value)}
+                placeholder="Tìm theo tên, món ăn..."
+                style={{ paddingLeft: '34px', paddingRight: searchQuery ? '34px' : '14px', paddingTop: '9px', paddingBottom: '9px', borderRadius: '99px', border: '1.5px solid #e2e8f0', outline: 'none', fontSize: '0.88rem', background: '#f8fafc', width: '200px' }}
+                onFocus={e => e.target.style.borderColor = 'var(--primary)'}
+                onBlur={e => e.target.style.borderColor = '#e2e8f0'}
+              />
+              {searchQuery && (
+                <button onClick={() => setSearchQuery('')} style={{ position: 'absolute', right: '10px', top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', cursor: 'pointer', color: '#94a3b8', display: 'flex', alignItems: 'center' }}>
+                  <XIcon size={14} />
+                </button>
+              )}
+            </div>
+            <SharePostModal recipes={userRecipes} onSuccess={() => router.refresh()} />
+          </div>
         </div>
 
         {/* Main Tabs */}
@@ -299,11 +357,16 @@ export default function CommunityClient({
               ))}
             </div>
 
-            {/* Masonry Grid */}
-            {sorted.length === 0 ? <EmptyFeed /> : (
-              <div className="masonry-grid" style={{ columnCount: 2, columnGap: '16px' }}>
-                {sorted.map((post) => (
-                  <MasonryCard
+            {/* Vertical Feed */}
+            {searchQuery && filtered.length === 0 ? (
+              <div style={{ textAlign: 'center', padding: '60px 20px', color: '#94a3b8' }}>
+                <Search size={40} style={{ marginBottom: '12px', opacity: 0.3 }} />
+                <p style={{ fontSize: '1rem' }}>Không tìm thấy kết quả cho "{searchQuery}"</p>
+              </div>
+            ) : sorted.length === 0 ? <EmptyFeed /> : (
+              <div style={{ display: 'flex', flexDirection: 'column' }}>
+                {filtered.map((post) => (
+                  <FeedCard
                     key={post.id}
                     post={post}
                     isLiked={likedIds.has(post.id)}
@@ -325,6 +388,7 @@ export default function CommunityClient({
           post={toDetailPost(selectedPost) as any}
           onClose={() => setSelectedPost(null)}
           isOwner={selectedPost.user.id === currentUserId}
+          currentUserId={currentUserId}
           userRecipes={userRecipes}
           onDeleted={(id) => { setMyPostsState((prev) => prev.filter(p => p.id !== id)); router.refresh(); }}
           onUpdated={handleUpdate}

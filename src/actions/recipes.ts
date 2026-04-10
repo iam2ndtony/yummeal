@@ -136,12 +136,10 @@ export async function getRecipes() {
 }
 
 export async function getRecipeById(id: string) {
-  const session = await getSession();
-  if (!session || !session.id) return null;
-
   try {
-    return await prisma.recipe.findFirst({
-      where: { id, userId: session.id },
+    // Allow anyone (logged in or not) to view a recipe shared via Community
+    return await prisma.recipe.findUnique({
+      where: { id },
     });
   } catch (error) {
     console.error('Error fetching recipe by id:', error);

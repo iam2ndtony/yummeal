@@ -2,6 +2,8 @@ import type { Metadata } from 'next';
 import { Analytics } from '@vercel/analytics/next';
 import Navbar from '@/components/Navbar';
 import MobileBottomNav from '@/components/MobileBottomNav';
+import { Analytics } from "@vercel/analytics/next"
+
 
 import { AuthProvider } from '@/context/AuthContext';
 import { getSession } from '@/lib/auth';
@@ -26,6 +28,7 @@ export default async function RootLayout({
           <Navbar />
           <main>{children}</main>
           <MobileBottomNav />
+          <Analytics />
         </AuthProvider>
         <Analytics />
       </body>

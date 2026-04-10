@@ -2,6 +2,7 @@ import { notFound } from 'next/navigation';
 import Link from 'next/link';
 import { ChevronLeft, Clock, Users } from 'lucide-react';
 import { getRecipeById, getDefaultIngredients } from '@/actions/recipes';
+import { getSession } from '@/lib/auth';
 import DashboardFooter from '@/components/DashboardFooter';
 import RecipeImageUpload from './RecipeImageUpload';
 import RecipeActions from './RecipeActions';
@@ -16,6 +17,9 @@ export default async function RecipeDetailPage({ params }: Props) {
   const recipe = await getRecipeById(id);
 
   if (!recipe) notFound();
+
+  const session = await getSession();
+  const isOwner = session?.id === recipe.userId;
 
   let ingredientList: string[] = [];
   let detailedInstructionsDisplay: string = '';
@@ -61,7 +65,7 @@ export default async function RecipeDetailPage({ params }: Props) {
           {/* Recipe card */}
           <div className={styles.recipeCard}>
             {/* Hero food photo */}
-            {!recipe.image?.startsWith('/images/') ? (
+            {(!recipe.image?.startsWith('/images/') && isOwner) ? (
               <RecipeImageUpload recipeId={recipe.id} initialImage={recipe.image} />
             ) : recipe.image && (
               <div className={styles.heroPhoto}>
@@ -131,7 +135,7 @@ export default async function RecipeDetailPage({ params }: Props) {
 
             {/* Action buttons */}
             <div className={styles.actions}>
-              {!recipe.image?.startsWith('/images/') && (
+              {(!recipe.image?.startsWith('/images/') && isOwner) && (
                 <RecipeActions 
                   recipe={recipe} 
                   ingredientList={ingredientList} 

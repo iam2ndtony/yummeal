@@ -147,6 +147,38 @@ export default function SettingsPage() {
 
   return (
     <>
+      {mounted && avatarCropOpen && rawAvatarSrc && createPortal(
+        <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: 'rgba(0,0,0,0.8)', zIndex: 9999, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
+          <div style={{ position: 'relative', width: '90%', maxWidth: '500px', height: '400px', backgroundColor: '#333', borderRadius: '12px', overflow: 'hidden' }}>
+            <Cropper
+              image={rawAvatarSrc}
+              crop={avatarCrop}
+              zoom={avatarZoom}
+              aspect={1}
+              onCropChange={setAvatarCrop}
+              onCropComplete={onAvatarCropComplete}
+              onZoomChange={setAvatarZoom}
+            />
+          </div>
+          <div style={{ marginTop: '20px', display: 'flex', gap: '16px' }}>
+            <button
+              onClick={() => { setAvatarCropOpen(false); setRawAvatarSrc(null); }}
+              style={{ padding: '10px 24px', borderRadius: '8px', border: 'none', background: '#475569', color: 'white', fontWeight: 600, cursor: 'pointer' }}
+            >
+              <X size={18} style={{ verticalAlign: 'middle', marginRight: '6px' }}/> Hủy
+            </button>
+            <button
+              onClick={handleAvatarCropConfirm}
+              disabled={avatarSaving}
+              style={{ padding: '10px 24px', borderRadius: '8px', border: 'none', background: 'var(--primary)', color: 'white', fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center' }}
+            >
+              {avatarSaving ? <Loader2 size={18} className="animate-spin" style={{ marginRight: '6px' }}/> : <Check size={18} style={{ marginRight: '6px' }}/>}
+              {avatarSaving ? 'Đang lưu...' : 'Xác nhận'}
+            </button>
+          </div>
+        </div>,
+        document.body
+      )}
       <main className={styles.settingsContainer}>
         <div className="container">
           <div className={styles.header}>

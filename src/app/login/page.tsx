@@ -27,7 +27,7 @@ export default function LoginPage() {
       const result = await loginAction(formData);
       if (result.success && result.user) {
         login(result.user as any);
-        router.push('/fridge');
+        router.push('/');
       } else {
         setError(result.error || 'Đăng nhập thất bại.');
       }

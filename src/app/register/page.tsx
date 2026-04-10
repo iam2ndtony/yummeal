@@ -37,7 +37,7 @@ export default function RegisterPage() {
         if (loginResult.success && loginResult.user) {
           login(loginResult.user as any);
         }
-        router.push('/fridge');
+        router.push('/');
       } else {
         setError(result.error || 'Đăng ký thất bại.');
       }

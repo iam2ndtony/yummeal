@@ -11,7 +11,8 @@ export async function getCommunityPosts() {
       include: {
         user: { select: { id: true, name: true, avatarUrl: true } },
         recipe: { select: { id: true, title: true, description: true, time: true, servings: true, instructions: true, ingredients: true } },
-        _count: { select: { likes: true } },
+        _count: { select: { likes: true, comments: true } },
+        comments: { where: { parentId: null }, include: { user: { select: { id: true, name: true, avatarUrl: true } }, likes: true, replies: { include: { user: { select: { id: true, name: true, avatarUrl: true } }, likes: true }, orderBy: { createdAt: 'asc' } } }, orderBy: { createdAt: 'asc' } },
       },
     });
     return posts;
@@ -30,7 +31,8 @@ export async function getFeaturedPosts() {
       include: {
         user: { select: { id: true, name: true, avatarUrl: true } },
         recipe: { select: { id: true, title: true, description: true, time: true, servings: true, instructions: true, ingredients: true } },
-        _count: { select: { likes: true } },
+        _count: { select: { likes: true, comments: true } },
+        comments: { include: { user: { select: { id: true, name: true, avatarUrl: true } } }, orderBy: { createdAt: 'asc' } },
       },
     });
   } catch {
@@ -76,6 +78,14 @@ export async function toggleLike(postId: string) {
       await prisma.communityLike.delete({ where: { id: existing.id } });
     } else {
       await prisma.communityLike.create({ data: { postId, userId: session.id } });
+      // Notify post owner
+      const post = await prisma.communityPost.findUnique({ where: { id: postId }, select: { userId: true } });
+      if (post && post.userId !== session.id) {
+        const liker = await prisma.user.findUnique({ where: { id: session.id }, select: { name: true } });
+        await prisma.notification.create({
+          data: { recipientId: post.userId, type: 'like', message: `${liker?.name} đã thích bài đăng của bạn`, postId },
+        });
+      }
     }
 
     revalidatePath('/community');
@@ -124,7 +134,8 @@ export async function getMyPosts() {
       include: {
         user: { select: { id: true, name: true, avatarUrl: true } },
         recipe: { select: { id: true, title: true, description: true, time: true, servings: true, instructions: true, ingredients: true } },
-        _count: { select: { likes: true } },
+        _count: { select: { likes: true, comments: true } },
+        comments: { include: { user: { select: { id: true, name: true, avatarUrl: true } } }, orderBy: { createdAt: 'asc' } },
       },
     });
   } catch {
@@ -162,6 +173,59 @@ export async function deletePost(postId: string) {
     return { success: true };
   } catch {
     return { success: false };
+  }
+}
+
+export async function addComment(postId: string, content: string) {
+  const session = await getSession();
+  if (!session?.id) return { success: false, error: 'Vui lòng đăng nhập.' };
+  if (!content.trim()) return { success: false, error: 'Nội dung trống.' };
+
+  try {
+    const comment = await prisma.communityComment.create({
+      data: { postId, userId: session.id, content: content.trim() },
+      include: { user: { select: { id: true, name: true, avatarUrl: true } }, likes: true, replies: true },
+    });
+
+    // Notify post owner
+    const post = await prisma.communityPost.findUnique({ where: { id: postId }, select: { userId: true } });
+    if (post && post.userId !== session.id) {
+      const commenter = await prisma.user.findUnique({ where: { id: session.id }, select: { name: true } });
+      await prisma.notification.create({
+        data: { recipientId: post.userId, type: 'comment', message: `${commenter?.name} đã bình luận về bài đăng của bạn`, postId },
+      });
+    }
+
+    revalidatePath('/community');
+    return { success: true, comment };
+  } catch (error) {
+    console.error('Error adding comment:', error);
+    return { success: false, error: 'Không thể gởi bình luận.' };
+  }
+}
+
+export async function deleteComment(commentId: string) {
+  const session = await getSession();
+  if (!session?.id) return { success: false, error: 'Vui lòng đăng nhập.' };
+
+  try {
+    const existing = await prisma.communityComment.findUnique({ where: { id: commentId } });
+    if (!existing) return { success: false, error: 'Bình luận không tồn tại.' };
+    
+    // Allow post owner or comment owner to delete
+    if (existing.userId !== session.id) {
+      const post = await prisma.communityPost.findUnique({ where: { id: existing.postId } });
+      if (post?.userId !== session.id) {
+        return { success: false, error: 'Không có quyền xóa.' };
+      }
+    }
+
+    await prisma.communityComment.delete({ where: { id: commentId } });
+    revalidatePath('/community');
+    return { success: true };
+  } catch (error) {
+    console.error('Error deleting comment:', error);
+    return { success: false, error: 'Lỗi khi xóa bình luận.' };
   }
 }
 
