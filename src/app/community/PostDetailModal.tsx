@@ -463,7 +463,8 @@ export default function PostDetailModal({
           </div>
         </div>
       </div>
-    </div>,
+    </div>
+    </>,
     document.body
   );
 }
