@@ -13,12 +13,9 @@ export default function ThemeToggle() {
       setTheme(stored);
       document.documentElement.setAttribute('data-theme', stored);
     } else {
-      // Check system preference
-      const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-      if (prefersDark) {
-        setTheme('dark');
-        document.documentElement.setAttribute('data-theme', 'dark');
-      }
+      // Always default to light mode
+      setTheme('light');
+      document.documentElement.setAttribute('data-theme', 'light');
     }
   }, []);
 
