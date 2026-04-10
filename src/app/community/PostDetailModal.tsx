@@ -166,68 +166,92 @@ export default function PostDetailModal({
   });
 
   return createPortal(
-    <div onClick={onClose} style={{ position: 'fixed', inset: 0, zIndex: 99998, background: 'rgba(15,23,42,0.9)', backdropFilter: 'blur(12px)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '16px' }}>
-      <div onClick={(e) => e.stopPropagation()} style={{ background: 'white', borderRadius: '20px', width: '100%', maxWidth: '900px', maxHeight: '90vh', overflow: 'hidden', boxShadow: '0 40px 80px rgba(0,0,0,0.5)', display: 'flex', flexDirection: 'column' }}>
+    <>
+      <style>{`
+        .post-detail-wrapper {
+          background: white; border-radius: 20px; width: 100%; max-width: 900px;
+          max-height: 90vh; overflow: hidden; box-shadow: 0 40px 80px rgba(0,0,0,0.5);
+          display: flex; flex-direction: column;
+        }
+        .post-detail-body {
+          display: flex; flex: 1; overflow: hidden; min-height: 0; flex-direction: row;
+        }
+        .post-detail-image-container {
+          flex-shrink: 0; width: 50%; background: #0a0e1a; display: flex; align-items: center;
+          justify-content: center; position: relative; border-right: 1px solid #f1f5f9; border-bottom: none;
+        }
+        .post-detail-panel {
+          flex: 1; display: flex; flex-direction: column; overflow: hidden;
+        }
 
-        {/* ── Header ── */}
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '13px 18px', borderBottom: '1px solid #f1f5f9', flexShrink: 0 }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '11px' }}>
-            <Link href={`/community/user/${post.user.id}`} onClick={onClose} style={{ flexShrink: 0 }}>
-              <img src={getAvatar(post.user)} alt={post.user.name} style={{ width: '38px', height: '38px', borderRadius: '50%', objectFit: 'cover', display: 'block' }} />
-            </Link>
-            <div>
-              <Link href={`/community/user/${post.user.id}`} onClick={onClose} style={{ fontWeight: 700, color: '#1e293b', fontSize: '0.92rem', textDecoration: 'none', display: 'block' }}>
-                {post.user.name}
+        @media (max-width: 768px) {
+          .post-detail-body { flex-direction: column; overflow-y: auto !important; display: block; }
+          .post-detail-image-container { width: 100%; height: 350px; flex-shrink: 0; border-right: none; border-bottom: 1px solid #f1f5f9; }
+          .post-detail-panel { width: 100%; overflow: visible; display: flex; flex-direction: column; }
+        }
+      `}</style>
+      <div onClick={onClose} style={{ position: 'fixed', inset: 0, zIndex: 99998, background: 'rgba(15,23,42,0.9)', backdropFilter: 'blur(12px)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '16px' }}>
+        <div onClick={(e) => e.stopPropagation()} className="post-detail-wrapper">
+
+          {/* ── Header ── */}
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '13px 18px', borderBottom: '1px solid #f1f5f9', flexShrink: 0 }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '11px' }}>
+              <Link href={`/community/user/${post.user.id}`} onClick={onClose} style={{ flexShrink: 0 }}>
+                <img src={getAvatar(post.user)} alt={post.user.name} style={{ width: '38px', height: '38px', borderRadius: '50%', objectFit: 'cover', display: 'block' }} />
               </Link>
-              {post.recipe && mode === 'view' && (
-                <Link href={`/recipes/${post.recipe.id}`} style={{ fontSize: '0.76rem', color: 'var(--primary)', fontWeight: 600, textDecoration: 'none' }} onClick={onClose}>
-                  🔗 {post.recipe.title}
+              <div>
+                <Link href={`/community/user/${post.user.id}`} onClick={onClose} style={{ fontWeight: 700, color: '#1e293b', fontSize: '0.92rem', textDecoration: 'none', display: 'block' }}>
+                  {post.user.name}
                 </Link>
+                {post.recipe && mode === 'view' && (
+                  <Link href={`/recipes/${post.recipe.id}`} style={{ fontSize: '0.76rem', color: 'var(--primary)', fontWeight: 600, textDecoration: 'none' }} onClick={onClose}>
+                    🔗 {post.recipe.title}
+                  </Link>
+                )}
+              </div>
+            </div>
+
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+              {isOwner && mode === 'view' && (
+                <>
+                  <button onClick={() => setMode('edit')} style={{ display: 'flex', alignItems: 'center', gap: '5px', background: '#f1f5f9', border: 'none', color: '#475569', padding: '7px 13px', borderRadius: '9px', fontWeight: 600, cursor: 'pointer', fontSize: '0.82rem' }}>
+                    <Pencil size={13} /> Sửa
+                  </button>
+                  <button onClick={handleDelete} disabled={deleting} style={{ display: 'flex', alignItems: 'center', gap: '5px', background: '#fef2f2', border: 'none', color: '#ef4444', padding: '7px 13px', borderRadius: '9px', fontWeight: 600, cursor: 'pointer', fontSize: '0.82rem' }}>
+                    {deleting ? <Loader2 size={13} /> : <Trash2 size={13} />} Xóa
+                  </button>
+                </>
               )}
+              {isOwner && mode === 'edit' && (
+                <>
+                  <button onClick={() => setMode('view')} style={{ background: '#f1f5f9', border: 'none', color: '#64748b', padding: '7px 13px', borderRadius: '9px', fontWeight: 600, cursor: 'pointer', fontSize: '0.82rem' }}>Hủy</button>
+                  <button onClick={handleSaveEdit} disabled={saving} style={{ display: 'flex', alignItems: 'center', gap: '5px', background: 'var(--primary)', border: 'none', color: 'white', padding: '7px 15px', borderRadius: '9px', fontWeight: 700, cursor: 'pointer', fontSize: '0.82rem' }}>
+                    {saving ? <Loader2 size={13} /> : <Check size={13} />} Lưu
+                  </button>
+                </>
+              )}
+              <button onClick={onClose} style={{ background: '#f1f5f9', border: 'none', color: '#94a3b8', width: '33px', height: '33px', borderRadius: '50%', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                <X size={16} />
+              </button>
             </div>
           </div>
 
-          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-            {isOwner && mode === 'view' && (
-              <>
-                <button onClick={() => setMode('edit')} style={{ display: 'flex', alignItems: 'center', gap: '5px', background: '#f1f5f9', border: 'none', color: '#475569', padding: '7px 13px', borderRadius: '9px', fontWeight: 600, cursor: 'pointer', fontSize: '0.82rem' }}>
-                  <Pencil size={13} /> Chỉnh sửa
-                </button>
-                <button onClick={handleDelete} disabled={deleting} style={{ display: 'flex', alignItems: 'center', gap: '5px', background: '#fef2f2', border: 'none', color: '#ef4444', padding: '7px 13px', borderRadius: '9px', fontWeight: 600, cursor: 'pointer', fontSize: '0.82rem' }}>
-                  {deleting ? <Loader2 size={13} /> : <Trash2 size={13} />} Xóa
-                </button>
-              </>
-            )}
-            {isOwner && mode === 'edit' && (
-              <>
-                <button onClick={() => setMode('view')} style={{ background: '#f1f5f9', border: 'none', color: '#64748b', padding: '7px 13px', borderRadius: '9px', fontWeight: 600, cursor: 'pointer', fontSize: '0.82rem' }}>Hủy</button>
-                <button onClick={handleSaveEdit} disabled={saving} style={{ display: 'flex', alignItems: 'center', gap: '5px', background: 'var(--primary)', border: 'none', color: 'white', padding: '7px 15px', borderRadius: '9px', fontWeight: 700, cursor: 'pointer', fontSize: '0.82rem' }}>
-                  {saving ? <Loader2 size={13} /> : <Check size={13} />} Lưu
-                </button>
-              </>
-            )}
-            <button onClick={onClose} style={{ background: '#f1f5f9', border: 'none', color: '#94a3b8', width: '33px', height: '33px', borderRadius: '50%', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-              <X size={16} />
-            </button>
-          </div>
-        </div>
+          {/* ── Body ── */}
+          <div className="post-detail-body">
 
-        {/* ── Body ── */}
-        <div style={{ display: 'flex', flex: 1, overflow: 'hidden', minHeight: 0 }}>
-
-          {/* LEFT: Image */}
-          <div style={{ flexShrink: 0, width: '50%', background: '#0a0e1a', display: 'flex', alignItems: 'center', justifyContent: 'center', position: 'relative' }}>
-            <img src={post.imageUrl} alt="post" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-            <div style={{ position: 'absolute', bottom: '14px', left: '14px', background: 'rgba(0,0,0,0.6)', backdropFilter: 'blur(6px)', padding: '6px 13px', borderRadius: '99px', display: 'flex', alignItems: 'center', gap: '6px', color: 'white', fontWeight: 700, fontSize: '0.87rem' }}>
-              <Heart size={14} fill="white" /> {post._count.likes} lượt thích
+            {/* LEFT: Image */}
+            <div className="post-detail-image-container">
+              <img src={post.imageUrl} alt="post" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+              <div style={{ position: 'absolute', bottom: '14px', left: '14px', background: 'rgba(0,0,0,0.6)', backdropFilter: 'blur(6px)', padding: '6px 13px', borderRadius: '99px', display: 'flex', alignItems: 'center', gap: '6px', color: 'white', fontWeight: 700, fontSize: '0.87rem' }}>
+                <Heart size={14} fill="white" /> {post._count.likes} lượt thích
+              </div>
             </div>
-          </div>
 
-          {/* RIGHT: Panel */}
-          <div style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden', borderLeft: '1px solid #f1f5f9' }}>
+            {/* RIGHT: Panel */}
+            <div className="post-detail-panel">
 
-            {/* Edit mode */}
-            {mode === 'edit' ? (
+              {/* Edit mode */}
+              {mode === 'edit' ? (
               <div style={{ padding: '18px', display: 'flex', flexDirection: 'column', gap: '14px', overflowY: 'auto', flex: 1 }}>
                 <div>
                   <label style={{ display: 'block', fontWeight: 700, color: '#334155', fontSize: '0.82rem', marginBottom: '7px' }}>📝 Caption</label>

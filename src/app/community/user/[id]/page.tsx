@@ -11,34 +11,7 @@ function getAvatar(user: { id: string; name: string; avatarUrl?: string | null }
   return `https://api.dicebear.com/7.x/thumbs/svg?seed=${Math.abs(hash)}`;
 }
 
-function PostGrid({ posts }: { posts: any[] }) {
-  if (posts.length === 0) {
-    return (
-      <div style={{ textAlign: 'center', padding: '60px 20px', color: '#94a3b8' }}>
-        <div style={{ fontSize: '4rem', marginBottom: '12px' }}>📸</div>
-        <p>Chưa có bài đăng nào.</p>
-      </div>
-    );
-  }
-  return (
-    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '3px' }}>
-      {posts.map((post) => (
-        <div key={post.id} style={{ position: 'relative', aspectRatio: '1', overflow: 'hidden', background: '#f1f5f9', cursor: 'default' }} className="profile-post-item">
-          <img src={post.imageUrl} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }} />
-          <div className="profile-post-overlay" style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.55)', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '20px', opacity: 0, transition: 'opacity 0.2s' }}>
-            <span style={{ color: 'white', fontWeight: 700, display: 'flex', alignItems: 'center', gap: '5px', fontSize: '1rem' }}>
-              <Heart size={18} fill="white" /> {post._count.likes}
-            </span>
-            <span style={{ color: 'white', fontWeight: 700, display: 'flex', alignItems: 'center', gap: '5px', fontSize: '1rem' }}>
-              <MessageCircle size={18} fill="white" /> {post._count.comments}
-            </span>
-          </div>
-        </div>
-      ))}
-    </div>
-  );
-}
-
+import ProfileGridClient from './ProfileGridClient';
 interface Props { params: Promise<{ id: string }> }
 
 export default async function UserProfilePage({ params }: Props) {
@@ -108,7 +81,7 @@ export default async function UserProfilePage({ params }: Props) {
         <div style={{ borderTop: '1px solid var(--border)', marginBottom: '3px' }} />
 
         {/* Posts Grid */}
-        <PostGrid posts={posts} />
+        <ProfileGridClient posts={posts} currentUserId={session?.id ?? null} />
       </div>
     </main>
   );
