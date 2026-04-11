@@ -50,11 +50,14 @@ export default function AddFridgeModal() {
   useEffect(() => {
     if (isOpen) {
       document.body.style.overflow = 'hidden';
+      document.documentElement.style.overflow = 'hidden';
     } else {
       document.body.style.overflow = 'unset';
+      document.documentElement.style.overflow = 'unset';
     }
     return () => {
       document.body.style.overflow = 'unset';
+      document.documentElement.style.overflow = 'unset';
     };
   }, [isOpen]);
 
@@ -120,7 +123,7 @@ export default function AddFridgeModal() {
               {/* Left Side: Quick Select Grid */}
               <div className={styles.quickSelectSection}>
                 <h3 className={styles.sectionTitle}>Gợi ý nhanh</h3>
-                <p className={styles.sectionDesc}>Bấm để điền tự động (Thay ảnh dễ dàng trong code)</p>
+                <p className={styles.sectionDesc}>Bấm để điền tự động</p>
                 <div className={styles.quickGrid}>
                   {QUICK_ITEMS.map((item, idx) => (
                     <button 
