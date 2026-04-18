@@ -36,7 +36,7 @@ export async function updateUserAction(userId: string, data: { plan: string; gen
         generationCount: data.generationCount
       }
     });
-    
+
     revalidatePath('/admin');
     return { success: true, user };
   } catch (error: any) {
@@ -58,14 +58,14 @@ export async function deletePostAction(postId: string) {
 
 export async function verifyAdminPassword(password: string) {
   const correctPassword = process.env.ADMIN_PASSWORD || 'yummeal2026';
-  
+
   if (password === correctPassword) {
     const { cookies } = await import('next/headers');
     (await cookies()).set('admin_access', 'true', {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
       path: '/admin',
-      // No maxAge = session cookie, expires when browser closes
+      maxAge: 60 * 60 * 24 * 7 // 1 week
     });
     return { success: true };
   }
