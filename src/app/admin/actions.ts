@@ -64,16 +64,10 @@ export async function verifyAdminPassword(password: string) {
     (await cookies()).set('admin_access', 'true', {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
-      path: '/',
-      maxAge: 60 * 60 * 24 * 7 // 1 week
+      path: '/admin',
+      // No maxAge = session cookie, expires when browser closes
     });
     return { success: true };
   }
   return { success: false, error: 'Invalid password' };
-}
-
-export async function logoutAdminAction() {
-  const { cookies } = await import('next/headers');
-  (await cookies()).delete('admin_access');
-  return { success: true };
 }
