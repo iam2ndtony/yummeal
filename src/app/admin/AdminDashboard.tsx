@@ -1,14 +1,14 @@
 'use client';
 
 import React from 'react';
-import styles from './page.module.css';
-import { 
+import {
   LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
   PieChart, Pie, Cell, AreaChart, Area
 } from 'recharts';
-import { Users, BookOpen, MessageSquare, Refrigerator, Zap, Edit2 } from 'lucide-react';
+import { Users, BookOpen, MessageSquare, Refrigerator, Zap, Edit2, Lock } from 'lucide-react';
 import DashboardFooter from '@/components/DashboardFooter';
 import ManageUserModal from './ManageUserModal';
+import { logoutAdminAction } from './actions';
 
 interface AdminDashboardProps {
   stats: {
@@ -26,7 +26,7 @@ interface AdminDashboardProps {
 const COLORS = ['#d35400', '#f39c12', '#3498db', '#2ecc71', '#9b59b6'];
 
 export default function AdminDashboard({ stats, growthData, users }: AdminDashboardProps) {
-  const [editingUser, setEditingUser] = React.useState<{id: string, name: string} | null>(null);
+  const [editingUser, setEditingUser] = React.useState<{ id: string, name: string } | null>(null);
 
   const pieData = [
     { name: 'FREE Users', value: stats.freeUsers },
@@ -43,11 +43,23 @@ export default function AdminDashboard({ stats, growthData, users }: AdminDashbo
     <div className={styles.container}>
       <header className={styles.header}>
         <div className={styles.headerContent}>
-          <h1 className={styles.title}>Admin Command Center</h1>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <h1 className={styles.title}>Admin Command Center</h1>
+            <button
+              className={styles.logoutBtn}
+              onClick={async () => {
+                await logoutAdminAction();
+                window.location.reload();
+              }}
+              title="Lock Dashboard"
+            >
+              <Lock size={18} /> Lock
+            </button>
+          </div>
           <p className={styles.subtitle}>Real-time analytics and platform overview</p>
         </div>
       </header>
-      
+
       <main className={styles.mainContent}>
         {/* KPI Cards */}
         <section className={styles.kpiGrid}>
@@ -60,7 +72,7 @@ export default function AdminDashboard({ stats, growthData, users }: AdminDashbo
               <span className={styles.kpiValue}>{stats.totalUsers.toLocaleString()}</span>
             </div>
           </div>
-          
+
           <div className={styles.kpiCard}>
             <div className={styles.kpiIconWrapper} style={{ background: 'rgba(243, 156, 18, 0.1)' }}>
               <Zap size={24} className={styles.kpiIcon} style={{ color: '#f39c12' }} />
@@ -90,9 +102,9 @@ export default function AdminDashboard({ stats, growthData, users }: AdminDashbo
               <span className={styles.kpiValue}>{stats.totalPosts.toLocaleString()}</span>
             </div>
           </div>
-          
+
           <div className={styles.kpiCard}>
-             <div className={styles.kpiIconWrapper} style={{ background: 'rgba(155, 89, 182, 0.1)' }}>
+            <div className={styles.kpiIconWrapper} style={{ background: 'rgba(155, 89, 182, 0.1)' }}>
               <Refrigerator size={24} className={styles.kpiIcon} style={{ color: '#9b59b6' }} />
             </div>
             <div className={styles.kpiInfo}>
@@ -111,18 +123,18 @@ export default function AdminDashboard({ stats, growthData, users }: AdminDashbo
                 <AreaChart data={growthData}>
                   <defs>
                     <linearGradient id="colorUsers" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="5%" stopColor="#d35400" stopOpacity={0.3}/>
-                      <stop offset="95%" stopColor="#d35400" stopOpacity={0}/>
+                      <stop offset="5%" stopColor="#d35400" stopOpacity={0.3} />
+                      <stop offset="95%" stopColor="#d35400" stopOpacity={0} />
                     </linearGradient>
                     <linearGradient id="colorPosts" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="5%" stopColor="#3498db" stopOpacity={0.3}/>
-                      <stop offset="95%" stopColor="#3498db" stopOpacity={0}/>
+                      <stop offset="5%" stopColor="#3498db" stopOpacity={0.3} />
+                      <stop offset="95%" stopColor="#3498db" stopOpacity={0} />
                     </linearGradient>
                   </defs>
                   <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="var(--border-color)" />
-                  <XAxis dataKey="date" stroke="var(--text-secondary)" tick={{fontSize: 12}} tickMargin={10} minTickGap={20} />
-                  <YAxis stroke="var(--text-secondary)" tick={{fontSize: 12}} />
-                  <Tooltip 
+                  <XAxis dataKey="date" stroke="var(--text-secondary)" tick={{ fontSize: 12 }} tickMargin={10} minTickGap={20} />
+                  <YAxis stroke="var(--text-secondary)" tick={{ fontSize: 12 }} />
+                  <Tooltip
                     contentStyle={{ borderRadius: '12px', background: 'var(--bg-card)', border: '1px solid var(--border-color)', color: 'var(--text-primary)' }}
                   />
                   <Area type="monotone" dataKey="users" stroke="#d35400" fillOpacity={1} fill="url(#colorUsers)" strokeWidth={3} />
@@ -164,10 +176,10 @@ export default function AdminDashboard({ stats, growthData, users }: AdminDashbo
               </div>
             </div>
           </div>
-          
+
           <div className={styles.chartCard}>
             <h2 className={styles.chartTitle}>Content Breakdown</h2>
-             <div className={styles.chartContainer}>
+            <div className={styles.chartContainer}>
               <ResponsiveContainer width="100%" height="100%">
                 <PieChart>
                   <Pie
@@ -186,7 +198,7 @@ export default function AdminDashboard({ stats, growthData, users }: AdminDashbo
                   <Tooltip contentStyle={{ borderRadius: '8px', background: 'var(--bg-card)', border: 'none', color: 'var(--text-primary)' }} />
                 </PieChart>
               </ResponsiveContainer>
-               <div className={styles.chartLegend}>
+              <div className={styles.chartLegend}>
                 {contentPieData.map((entry, index) => (
                   <div key={entry.name} className={styles.legendItem}>
                     <div className={styles.legendColor} style={{ backgroundColor: COLORS[(index + 2) % COLORS.length] }} />
@@ -234,9 +246,9 @@ export default function AdminDashboard({ stats, growthData, users }: AdminDashbo
                       </div>
                     </td>
                     <td>
-                      <button 
+                      <button
                         className={styles.actionBtn}
-                        onClick={() => setEditingUser({id: u.id, name: u.name})}
+                        onClick={() => setEditingUser({ id: u.id, name: u.name })}
                       >
                         <Edit2 size={16} /> Manage
                       </button>
@@ -251,17 +263,17 @@ export default function AdminDashboard({ stats, growthData, users }: AdminDashbo
       <DashboardFooter />
 
       {editingUser && (
-        <ManageUserModal 
-          userId={editingUser.id} 
-          userName={editingUser.name} 
-          onClose={() => setEditingUser(null)} 
+        <ManageUserModal
+          userId={editingUser.id}
+          userName={editingUser.name}
+          onClose={() => setEditingUser(null)}
           onSaved={() => {
             setEditingUser(null);
             // In Next 13/14 app router, server actions usually trigger router refresh, 
             // but we can also window.location.reload() or let the server action revalidatePath handle it.
             // Action calls revalidatePath('/admin'), which updates server components. 
             // The table will reflect changes!
-          }} 
+          }}
         />
       )}
     </div>
